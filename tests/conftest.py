@@ -22,5 +22,5 @@ def run_around_tests():
 	# Do something before test
 
 	yield # Run test
-	 	
+
 	# Do something after test
