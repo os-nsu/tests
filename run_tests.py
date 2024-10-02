@@ -22,11 +22,25 @@ def import_pytest_if_installed():
 	return False
 
 def run_pytest():
-	args = sys.argv
+	args = [sys.argv[0]]
 
 	# Add path to folder with tests
-	# Should be before custom flags
-	args.insert(1, "tests")
+	args += ["tests"]
+
+	# Print shorter python tracebacks
+	args += ["--tb=short"]
+
+	# Generate xml report
+	args += ["--junit-xml=report.xml"]
+
+	# Show extra test summary
+	args += ["-rA"]
+
+	# Show verbose info where possible
+	args += ["-v"]
+
+	# Add custom args after predefined ones so they could be redefined
+	args += sys.argv[1:]
 
 	returncode = pytest.main(args)
 	return True if returncode == 0 else False
