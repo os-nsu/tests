@@ -2,7 +2,7 @@ import subprocess
 import pytest
 
 from steps.proxy_steps import (
-    start_proxy,
+	start_proxy,
 )
 
 def test_successful_start(project_dir, proxy_bin_name):

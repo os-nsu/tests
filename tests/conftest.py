@@ -4,7 +4,6 @@ import pytest
 # CLI arguments parser
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store")
-	parser.addoption("--bin", action="store")
 
 @pytest.fixture(scope="session")
 def project_dir(request):
@@ -15,10 +14,7 @@ def project_dir(request):
 
 @pytest.fixture(scope="session")
 def proxy_bin_name(request, project_dir):
-	proxy_bin = request.config.getoption("--bin")
-	if proxy_bin is None or len(proxy_bin) == 0:
-		pytest.fail("No proxy bin name was given. Use --bin")
-	return os.path.abspath(f"{project_dir}/{proxy_bin}")
+	return os.path.abspath(f"{project_dir}/install/proxy")
 
 @pytest.fixture(autouse=True)
 def run_around_tests():
