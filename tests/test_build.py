@@ -7,7 +7,6 @@ from steps.build_steps import (
 	simple_clean,
 )
 
-@pytest.mark.xfail(reason="Make outputs warning")
 def test_successful_make_clean(project_dir):
 	simple_make(project_dir)
 	simple_clean(project_dir)
@@ -15,7 +14,6 @@ def test_successful_make_clean(project_dir):
 	cleaned = True
 	assert cleaned, "make clean removed all build artifacts"
 
-@pytest.mark.xfail(reason="Make outputs warning")
 def test_successful_compilation(project_dir, proxy_bin_name):
 	simple_clean(project_dir)
 	simple_make(project_dir)
