@@ -7,6 +7,7 @@ import pytest
 from steps.build_steps import (
     simple_make,
     simple_clean,
+    make_with_sanitizers
 )
 
 def test_successful_make_clean(project_dir):
@@ -30,14 +31,3 @@ def test_library_symbols(proxy_bin_name):
     assert "init" in symbols, "Missing 'init' symbol"
     assert "fini" in symbols, "Missing 'fini' symbol"
 
-def test_build_with_sanitizers(project_dir, proxy_bin_name):
-    """Tests building the proxy server with AddressSanitizer and UndefinedBehaviorSanitizer."""
-    
-    subprocess.run(["make", "clean"], cwd=project_dir, capture_output=True, check=True)
-
-    sanitizer_flags = "-fsanitize=address,undefined -fno-omit-frame-pointer -g"
-    
-    build_result = subprocess.run(["make", f"CFLAGS={sanitizer_flags}"], cwd=project_dir, capture_output=True, text=True)
-    assert build_result.returncode == 0, f"'make' failed with return code {build_result.returncode}"
-    
-    assert os.path.exists(proxy_bin_name), f"Proxy binary '{proxy_bin_name}' was not created after building with sanitizers."

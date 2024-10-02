@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 def simple_make(project_dir):
 	res = subprocess.run(["make"], cwd=project_dir, capture_output=True, check=True)
@@ -11,3 +12,11 @@ def simple_clean(project_dir):
 	assert res.returncode == 0, "make clean finished with no-zero return code"
 	assert len(res.stderr) == 0, f"make clean has stderr '{res.stderr}'"
 	return res
+
+
+def make_with_flags(project_dir, cflags):
+    """Builds the proxy with specified flags."""
+    env = os.environ.copy()
+    env['CFLAGS'] = cflags
+    subprocess.run(["make", "clean"], cwd=project_dir, check=True)
+    subprocess.run(["make"], cwd=project_dir, env=env, check=True)
