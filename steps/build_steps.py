@@ -15,8 +15,8 @@ def simple_clean(project_dir):
 
 
 def make_with_flags(project_dir, cflags):
-    """Builds the proxy with specified flags."""
-    env = os.environ.copy()
-    env['CFLAGS'] = cflags
-    subprocess.run(["make", "clean"], cwd=project_dir, check=True)
-    subprocess.run(["make"], cwd=project_dir, env=env, check=True)
+	"""Builds the proxy with specified flags."""
+	env = os.environ.copy()
+	env['CFLAGS'] = cflags
+	subprocess.run(["make", "clean"], cwd=project_dir, check=True)
+	subprocess.run(["make"], cwd=project_dir, env=env, check=True)
