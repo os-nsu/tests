@@ -20,5 +20,7 @@ def proxy_bin_name(request, project_dir):
 @pytest.fixture(autouse=True)
 def run_around_tests():
 	# Do something before test
+
 	yield # Run test
+	 	
 	# Do something after test
