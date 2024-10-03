@@ -16,5 +16,5 @@ pip install -r requirements.txt
 
 Example
 ```bash
-./run_tests.py --src ../proxy-grisha/src --bin oos_proxy
+./run_tests.py --src ../proxy-grisha
 ```
