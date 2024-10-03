@@ -22,7 +22,7 @@ def send_signal(proc, sig):
 	else:
 		pytest.fail("Cannot send signal; process is not running.")
 	
-def run_proxy_with_args(project_dir, proxy_bin_name, args):
+def run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=None):
 	"""Runs the proxy with specified arguments and returns the CompletedProcess object."""
-	result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=True, capture_output=True, text=True)
+	result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=True, capture_output=True, text=True, timeout=timeout)
 	return result
