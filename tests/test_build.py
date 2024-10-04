@@ -7,7 +7,6 @@ import pytest
 from steps.build_steps import (
 	simple_make,
 	simple_clean,
-	make_with_sanitizers
 )
 
 def test_successful_make_clean(project_dir):

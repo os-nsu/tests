@@ -22,4 +22,3 @@ def check_for_coredump_difference(proxy_bin_name, start_coredumps, coredump_dir=
 		else:
 			print("Failed to retrieve stacktrace from coredump.")
 		pytest.fail("Proxy crashed and produced a coredump.")
-	
