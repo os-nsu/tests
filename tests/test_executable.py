@@ -41,15 +41,16 @@ def test_run_with_help_argument(project_dir, proxy_bin_name, timeout):
 	except subprocess.TimeoutExpired:
 		pytest.fail(f"Proxy with '--help' argument not end in {timeout} seconds")
 
-def test_run_with_invalid_arguments(project_dir, proxy_bin_name):
+def test_run_with_invalid_arguments(project_dir, proxy_bin_name, timeout):
 	"""Tests running the proxy with invalid arguments."""
 	try:
-		result = run_proxy_with_args(project_dir, proxy_bin_name, ['--invalid_arg'])
+		result = run_proxy_with_args(project_dir, proxy_bin_name, ['--invalid_arg'], timeout=timeout)
 		assert result.returncode != 0, "Proxy should exit with non-zero code when given invalid arguments."
 		assert "Invalid argument" in result.stderr or "unknown option" in result.stderr, "Expected error message for invalid argument."
 	except subprocess.CalledProcessError as e:
-		pytest.fail(f"Proxy")
-
+		pytest.fail(f"Proxy finish with error: {e.stderr}")
+	except subprocess.TimeoutExpired:
+		pytest.fail(f"Proxy not finished in {timeout} seconds in running with invalid argument.")
 
 def test_execution_with_sanitizers(project_dir, proxy_bin_name, timeout):
 	"""Tests the launch of a proxy built with AddressSanitizer and UndefinedBehaviorSanitizer."""

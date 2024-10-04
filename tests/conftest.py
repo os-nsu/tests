@@ -8,7 +8,7 @@ from steps.test_steps import(
 # CLI arguments parser
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store")
-	parser.addoption("--timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
+	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
 	parser.addoption("--coredump-dir", action="store", default="/var/lib/systemd/coredump", help="Directory where coredump files are stored.")
 
 @pytest.fixture(scope="session")
@@ -24,7 +24,7 @@ def proxy_bin_name(request, project_dir):
 
 @pytest.fixture(scope="session")
 def timeout(request):
-    return request.config.getoption("--timeout")
+    return request.config.getoption("--proxy_timeout")
 
 @pytest.fixture(scope="session")
 def coredump_dir(request):
