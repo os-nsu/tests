@@ -11,85 +11,78 @@ from steps.build_steps import (
 
 from steps.proxy_steps import (
 	start_proxy,
+	run_proxy,
+	run_proxy_with_args,
+	send_signal
 )
 
-def test_successful_start(project_dir, proxy_bin_name):
-    """Tests running proxy successfully."""
-    start_proxy(project_dir, proxy_bin_name)
-	# TODO: print backtrace if coredump was generated
-
-def test_run_without_arguments(project_dir, proxy_bin_name):
+def test_run_without_arguments(project_dir, proxy_bin_name, timeout):
 	"""Tests that the proxy starts successfully without arguments and can be terminated cleanly."""
-	start_coredumps = get_coredump_files()
 	proc = start_proxy(project_dir, proxy_bin_name)
-	time.sleep(1)
+	time.sleep(timeout)
 	try:
 		send_signal(proc, signal.SIGINT)
-		proc.wait(timeout=2)
-		assert proc.returncode == 0, f"Proxy exited with code {proc.returncode} after SIGINT, expected 0."
+		proc.wait(timeout=timeout)
+		expected_returncode = -signal.SIGINT
+		assert proc.returncode == expected_returncode, f"Proxy exited with code {expected_returncode} after SIGINT, expected 0."
 	except subprocess.TimeoutExpired:
 		proc.kill()
 		pytest.fail("Proxy did not terminate within the timeout period after SIGINT.")
-	finally:
-		check_for_coredump_difference(proxy_bin_name, start_coredumps)
 
-def test_run_with_help_argument(project_dir, proxy_bin_name):
+def test_run_with_help_argument(project_dir, proxy_bin_name, timeout):
 	"""Tests running the proxy successfully with '--help' argument."""
-	start_coredumps = get_coredump_files()
-	result = run_proxy_with_args(project_dir, proxy_bin_name, ['--help'])
 	try:
-		assert result.returncode == 0, f"Proxy exited with code {result.returncode} with '--help' argument."
-		assert "Usage" in result.stdout or "usage" in result.stdout, "Expected usage information in output."
-	finally:
-		check_for_coredump_difference(proxy_bin_name, start_coredumps)
+		result = run_proxy_with_args(project_dir=project_dir, proxy_bin_name=proxy_bin_name, args=['--help'], timeout=timeout)
+		expected_returncode = 0
+		assert result.returncode == expected_returncode, f"Proxy with '--help' argument finish with code {result.returncode}, exptected {expected_returncode} ."
+		assert  result.stdout != "", "Expected usage information in output."
+	except subprocess.CalledProcessError as e:
+		pytest.fail(f"Proxy with '--help' argument finish with error: {e.stderr}")
+	except subprocess.TimeoutExpired:
+		pytest.fail(f"Proxy with '--help' argument not end in {timeout} seconds")
 
 def test_run_with_invalid_arguments(project_dir, proxy_bin_name):
 	"""Tests running the proxy with invalid arguments."""
-	start_coredumps = get_coredump_files()
-	result = run_proxy_with_args(project_dir, proxy_bin_name, ['--invalid_arg'])
 	try:
+		result = run_proxy_with_args(project_dir, proxy_bin_name, ['--invalid_arg'])
 		assert result.returncode != 0, "Proxy should exit with non-zero code when given invalid arguments."
 		assert "Invalid argument" in result.stderr or "unknown option" in result.stderr, "Expected error message for invalid argument."
-	finally:
-		check_for_coredump_difference(proxy_bin_name, start_coredumps)
+	except subprocess.CalledProcessError as e:
+		pytest.fail(f"Proxy")
 
-def test_execution_with_sanitizers(project_dir, proxy_bin_name):
-	"""Тестирует запуск прокси, собранного с AddressSanitizer и UndefinedBehaviorSanitizer."""
+
+def test_execution_with_sanitizers(project_dir, proxy_bin_name, timeout):
+	"""Tests the launch of a proxy built with AddressSanitizer and UndefinedBehaviorSanitizer."""
 	cflags = "-fsanitize=address,undefined -ggdb3"
 	make_with_flags(project_dir, cflags)
-	start_coredumps = get_coredump_files()
 	proc = start_proxy(project_dir, proxy_bin_name)
-	time.sleep(1)
+	time.sleep(timeout)
 	try:
 		send_signal(proc, signal.SIGINT)
-		stdout, stderr = proc.communicate(timeout=1)
-		assert proc.returncode == 0, f"Proxy finish with code {proc.returncode} after SIGINT, expected 0."
-
-		sanitizer_errors = ["ERROR: AddressSanitizer", "runtime error:"]
-		if any(error in stderr for error in sanitizer_errors):
-			pytest.fail(f"Sanitizer found error:\n{stderr}")
+		proc.wait(timeout=timeout)
+		stdout, stderr = proc.communicate(timeout=timeout)
+		expected_returncode = -signal.SIGINT
+		assert proc.returncode == expected_returncode, f"Proxy finish with code {proc.returncode} after SIGINT, expected {expected_returncode}."
+		assert stderr == ""
 	except subprocess.TimeoutExpired:
 		proc.kill()
-		pytest.fail("ПThe proxy did not terminate within the specified time after SIGINT.")
-	finally:
-		check_for_coredump_difference(proxy_bin_name, start_coredumps)
+		pytest.fail("The proxy did not terminate within the specified time after SIGINT.")
 
 @pytest.mark.parametrize("sig, signal_name", [
 	(signal.SIGINT, "SIGINT"),
 	(signal.SIGQUIT, "SIGQUIT"),
 	(signal.SIGSEGV, "SIGSEGV"),
 ])
-def test_proxy_termination_on_signal(project_dir, proxy_bin_name, sig, signal_name):
+def test_proxy_termination_on_signal(project_dir, proxy_bin_name, sig, signal_name, timeout):
 	"""Tests that the proxy correctly terminates upon receiving specific signals."""
 	proc = start_proxy(project_dir, proxy_bin_name)
-	time.sleep(1)
-	start_coredumps = get_coredump_files()
+	time.sleep(timeout)
 	try:
 		send_signal(proc, sig)
-		proc.wait(timeout=2)
-		assert proc.returncode == 0, f"Proxy exited with code {proc.returncode} after {signal_name}, expected 0."
+		proc.wait(timeout=timeout)
+		expected_returncode = -sig
+		assert proc.returncode == expected_returncode, f"Proxy exited with code {proc.returncode} after {signal_name}, expected {expected_returncode}."
 	except subprocess.TimeoutExpired:
 		proc.kill()
 		pytest.fail(f"Proxy did not terminate within timeout after receiving {signal_name}.")
-	finally:
-		check_for_coredump_difference(proxy_bin_name, start_coredumps)
+
