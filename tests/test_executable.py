@@ -24,7 +24,7 @@ def test_run_without_arguments(project_dir, proxy_bin_name, timeout):
 		send_signal(proc, signal.SIGINT)
 		proc.wait(timeout=timeout)
 		expected_returncode = -signal.SIGINT
-		assert proc.returncode == expected_returncode, f"Proxy exited with code {expected_returncode} after SIGINT, expected 0."
+		assert proc.returncode == expected_returncode, f"Proxy exited with code {proc.returncode} after SIGINT, expected {expected_returncode}."
 	except subprocess.TimeoutExpired:
 		proc.kill()
 		pytest.fail("Proxy did not terminate within the timeout period after SIGINT.")
@@ -39,7 +39,7 @@ def test_run_with_help_argument(project_dir, proxy_bin_name, timeout):
 	except subprocess.CalledProcessError as e:
 		pytest.fail(f"Proxy with '--help' argument finish with error: {e.stderr}")
 	except subprocess.TimeoutExpired:
-		pytest.fail(f"Proxy with '--help' argument not end in {timeout} seconds")
+		pytest.fail(f"Proxy with '--help' argument not finish in {timeout} seconds")
 
 def test_run_with_invalid_arguments(project_dir, proxy_bin_name, timeout):
 	"""Tests running the proxy with invalid arguments."""
@@ -50,7 +50,7 @@ def test_run_with_invalid_arguments(project_dir, proxy_bin_name, timeout):
 	except subprocess.CalledProcessError as e:
 		pytest.fail(f"Proxy finish with error: {e.stderr}")
 	except subprocess.TimeoutExpired:
-		pytest.fail(f"Proxy not finished in {timeout} seconds in running with invalid argument.")
+		pytest.fail(f"Proxy ith invalid argument not finished in {timeout} seconds.")
 
 def test_execution_with_sanitizers(project_dir, proxy_bin_name, timeout):
 	"""Tests the launch of a proxy built with AddressSanitizer and UndefinedBehaviorSanitizer."""
@@ -67,7 +67,7 @@ def test_execution_with_sanitizers(project_dir, proxy_bin_name, timeout):
 		assert stderr == ""
 	except subprocess.TimeoutExpired:
 		proc.kill()
-		pytest.fail("The proxy did not terminate within the specified time after SIGINT.")
+		pytest.fail("The proxy not terminate within the specified time after SIGINT.")
 
 @pytest.mark.parametrize("sig, signal_name", [
 	(signal.SIGINT, "SIGINT"),
