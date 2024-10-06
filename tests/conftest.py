@@ -23,7 +23,7 @@ def proxy_bin_name(request, project_dir):
 	return os.path.abspath(f"{project_dir}/install/proxy")
 
 @pytest.fixture(scope="session")
-def timeout(request):
+def proxy_timeout(request):
     return request.config.getoption("--proxy_timeout")
 
 @pytest.fixture(scope="session")
