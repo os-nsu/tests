@@ -15,7 +15,6 @@ def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 		pytest.fail(f"Can't read {coredump_path_file}: {e}")
 
 def translate_core_pattern_to_path(proxy_bin_path, coredump_dir, core_pattern):
-
 	if core_pattern.startswith('|'):
 		return None, None
 
