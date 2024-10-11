@@ -3,7 +3,8 @@ import pytest
 
 from steps.test_steps import(
 	get_coredump_files,
-	check_for_coredump_difference
+	check_for_coredump_difference,
+	get_coredump_pattern
 )
 # CLI arguments parser
 def pytest_addoption(parser):
@@ -24,17 +25,24 @@ def proxy_bin_name(request, project_dir):
 
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
-    return request.config.getoption("--proxy_timeout")
+	return request.config.getoption("--proxy_timeout")
 
 @pytest.fixture(scope="session")
 def coredump_dir(request):
-    """Provides the coredump directory path."""
-    return os.path.abspath(request.config.getoption("--coredump-dir"))
+	"""Provides the coredump directory path."""
+	return os.path.abspath(request.config.getoption("--coredump-dir"))
+
+@pytest.fixture(scope="session")
+def core_pattern():
+	"""Read  coredump pattern from coredump_pattern_file."""
+	return get_coredump_pattern()
 
 @pytest.fixture(autouse=True)
-def run_around_tests(proxy_bin_name, coredump_dir):
+def run_around_tests(proxy_bin_name, core_pattern):
 	# Do something before test
-	start_coredumps = get_coredump_files()
+	start_coredumps = get_coredump_files(proxy_bin_path=proxy_bin_name, coredump_dir=coredump_dir, core_pattern=core_pattern)
 	yield # Run test
-	check_for_coredump_difference(proxy_bin_name, start_coredumps, coredump_dir)
+	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_path=proxy_bin_name, start_coredumps=start_coredumps, coredump_dir=coredump_dir, core_pattern=core_pattern)
+	if segfault_detected:
+		pytest.fail(segfault_details)
 	# Do something after test
