@@ -2,7 +2,7 @@ import subprocess
 import os
 
 def simple_make(project_dir):
-	res = subprocess.run(["make"], cwd=project_dir, capture_output=True, check=True)
+	res = subprocess.run(["make"], cwd=project_dir, capture_output=True, check=False)
 	assert res.returncode == 0, "make finished with no-zero return code"
 	assert len(res.stderr) == 0, f"make has stderr '{res.stderr}'"
 	return res
