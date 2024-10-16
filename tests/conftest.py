@@ -36,6 +36,7 @@ def core_pattern():
 
 def pytest_configure(config):
 	config.coredump_check_possible = False
+	config.core_pattern = ""
 
 def pytest_sessionstart(session):
 	"""Hook before all tests."""
@@ -76,22 +77,24 @@ def pytest_sessionstart(session):
 		return
 
 	config.coredump_check_possible = True
+	config.core_pattern = core_pattern
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_call(item):
 	config = item.config
 	proxy_bin_name = item.funcargs.get('proxy_bin_name')
-	core_pattern = item.funcargs.get('core_pattern')
+	project_dir = item.funcargs.get('project_dir')
+	core_pattern =config.core_pattern
 
-	if not config.coredump_check_possible or not proxy_bin_name or not core_pattern:
+	if not config.coredump_check_possible or not proxy_bin_name or not core_pattern or not project_dir:
 		yield
 		return
 
-	start_coredumps = get_coredump_files(proxy_bin_name, core_pattern)
+	start_coredumps = get_coredump_files(proxy_bin_name, project_dir, core_pattern)
 
 	yield
 
-	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, start_coredumps, core_pattern)
+	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, project_dir, start_coredumps, core_pattern)
 	if segfault_detected:
 		item._segfault_details = segfault_details
 
@@ -103,4 +106,7 @@ def pytest_runtest_makereport(item, call):
 
 	if report.when == "call" and hasattr(item, '_segfault_details'):
 		report.outcome = 'failed'
-		report.longrepr = f"{report.longrepr or ''}\n--- Proxy produced coredump(s) ---\n{item._segfault_details}"
+		if report.longrepr:
+			report.longrepr.addsection("Proxy produced coredump(s)", item._segfault_details)
+		else:
+			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"

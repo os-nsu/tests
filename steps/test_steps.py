@@ -14,7 +14,7 @@ def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 	except Exception as e:
 		pytest.fail(f"Can't read {coredump_path_file}: {e}")
 
-def translate_core_pattern_to_path(proxy_bin_path, core_pattern):
+def translate_core_pattern_to_path(proxy_bin_path, project_dir, core_pattern):
 	if core_pattern.startswith('|'):
 		return None, None
 
@@ -22,7 +22,7 @@ def translate_core_pattern_to_path(proxy_bin_path, core_pattern):
 		directory = os.path.dirname(core_pattern)
 		pattern = os.path.basename(core_pattern)
 	else:
-		directory = os.getcwd()
+		directory = project_dir
 		pattern = core_pattern
 
 	if not os.path.isdir(directory):
@@ -48,18 +48,18 @@ def translate_core_pattern_to_path(proxy_bin_path, core_pattern):
 
 	return directory, pattern
 
-def get_coredump_files(proxy_bin_path, core_pattern):
+def get_coredump_files(proxy_bin_path, project_dir, core_pattern):
 	"""Returns a set of coredump files in the specified directory based on core_pattern."""
-	directory, pattern = translate_core_pattern_to_path(proxy_bin_path, core_pattern)
+	directory, pattern = translate_core_pattern_to_path(proxy_bin_path, project_dir, core_pattern)
 	if directory is None or pattern is None:
 		# Проверка coredump невозможна
 		return None
 	full_pattern = os.path.join(directory, pattern)
 	return set(glob.glob(full_pattern))
 
-def check_for_coredump_difference(proxy_bin_path, start_coredumps, core_pattern):
+def check_for_coredump_difference(proxy_bin_path, project_dir, start_coredumps, core_pattern):
 	"""Checks for new coredumps and returns True and details if a new coredump is found."""
-	end_coredumps = get_coredump_files(proxy_bin_path, core_pattern)
+	end_coredumps = get_coredump_files(proxy_bin_path, project_dir, core_pattern)
 	if end_coredumps is None:
 		return False, ""
 	new_coredumps = end_coredumps - start_coredumps
@@ -67,7 +67,7 @@ def check_for_coredump_difference(proxy_bin_path, start_coredumps, core_pattern)
 		coredump_file = new_coredumps.pop()
 		gdb_command = f"gdb --batch -ex 'bt' {proxy_bin_path} {coredump_file}"
 		try:
-			gdb_result = subprocess.run(gdb_command, capture_output=True, text=True, shell=True, check=True)
+			gdb_result = subprocess.run(gdb_command, cwd=project_dir, capture_output=True, text=True, shell=True, check=True)
 			if gdb_result.stdout:
 				segfault_details = f"Stacktrace from coredump ({coredump_file}):\n{gdb_result.stdout}"
 			else:
