@@ -104,8 +104,13 @@ def pytest_runtest_makereport(item, call):
 	outcome = yield
 	report = outcome.get_result()
 
+	allow_coredump = item.get_closest_marker('allow_coredump')
+
 	if report.when == "call" and hasattr(item, '_segfault_details'):
-		report.outcome = 'failed'
+		# If allow_coredump mark is set then we don't modify test outcome
+		if not allow_coredump:
+			report.outcome = 'failed'
+
 		if report.longrepr:
 			report.longrepr.addsection("Proxy produced coredump(s)", item._segfault_details)
 		else:

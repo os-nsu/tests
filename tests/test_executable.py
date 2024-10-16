@@ -71,8 +71,8 @@ def test_execution_with_sanitizers(project_dir, proxy_bin_name, proxy_timeout):
 
 @pytest.mark.parametrize("sig, signal_name", [
 	(signal.SIGINT, "SIGINT"),
-	(signal.SIGQUIT, "SIGQUIT"),
-	(signal.SIGSEGV, "SIGSEGV"),
+	pytest.param(signal.SIGQUIT, "SIGQUIT", marks=pytest.mark.allow_coredump), # Mark allow coredump because SIGQUIT generated coredump
+	pytest.param(signal.SIGSEGV, "SIGSEGV", marks=pytest.mark.allow_coredump), # Mark allow coredump because SIGQUIT generated coredump
 ])
 def test_proxy_termination_on_signal(project_dir, proxy_bin_name, sig, signal_name, proxy_timeout):
 	"""Tests that the proxy correctly terminates upon receiving specific signals."""
