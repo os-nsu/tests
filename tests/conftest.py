@@ -12,7 +12,6 @@ from steps.test_steps import(
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
-	parser.addoption("--coredump-dir", action="store", default="/proc/sys/kernel/core_pattern", help="Directory where coredump files are stored.")
 
 @pytest.fixture(scope="session")
 def project_dir(request):
@@ -28,11 +27,6 @@ def proxy_bin_name(request, project_dir):
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
-
-@pytest.fixture(scope="session")
-def coredump_dir(request):
-	"""Provides the coredump directory path."""
-	return os.path.abspath(request.config.getoption("--coredump-dir"))
 
 @pytest.fixture(scope="session")
 def core_pattern():
@@ -87,18 +81,17 @@ def pytest_sessionstart(session):
 def pytest_runtest_call(item):
 	config = item.config
 	proxy_bin_name = item.funcargs.get('proxy_bin_name')
-	coredump_dir = item.funcargs.get('coredump_dir')
 	core_pattern = item.funcargs.get('core_pattern')
 
-	if not config.coredump_check_possible or not proxy_bin_name or not coredump_dir or not core_pattern:
+	if not config.coredump_check_possible or not proxy_bin_name or not core_pattern:
 		yield
 		return
 
-	start_coredumps = get_coredump_files(proxy_bin_name, coredump_dir, core_pattern)
+	start_coredumps = get_coredump_files(proxy_bin_name, core_pattern)
 
 	yield
 
-	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, start_coredumps, coredump_dir, core_pattern)
+	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, start_coredumps, core_pattern)
 	if segfault_detected:
 		item._segfault_details = segfault_details
 

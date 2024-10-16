@@ -14,7 +14,7 @@ def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 	except Exception as e:
 		pytest.fail(f"Can't read {coredump_path_file}: {e}")
 
-def translate_core_pattern_to_path(proxy_bin_path, coredump_dir, core_pattern):
+def translate_core_pattern_to_path(proxy_bin_path, core_pattern):
 	if core_pattern.startswith('|'):
 		return None, None
 
@@ -48,18 +48,18 @@ def translate_core_pattern_to_path(proxy_bin_path, coredump_dir, core_pattern):
 
 	return directory, pattern
 
-def get_coredump_files(proxy_bin_path, coredump_dir, core_pattern):
+def get_coredump_files(proxy_bin_path, core_pattern):
 	"""Returns a set of coredump files in the specified directory based on core_pattern."""
-	directory, pattern = translate_core_pattern_to_path(proxy_bin_path, coredump_dir, core_pattern)
+	directory, pattern = translate_core_pattern_to_path(proxy_bin_path, core_pattern)
 	if directory is None or pattern is None:
 		# Проверка coredump невозможна
 		return None
 	full_pattern = os.path.join(directory, pattern)
 	return set(glob.glob(full_pattern))
 
-def check_for_coredump_difference(proxy_bin_path, start_coredumps, coredump_dir, core_pattern):
+def check_for_coredump_difference(proxy_bin_path, start_coredumps, core_pattern):
 	"""Checks for new coredumps and returns True and details if a new coredump is found."""
-	end_coredumps = get_coredump_files(proxy_bin_path, coredump_dir, core_pattern)
+	end_coredumps = get_coredump_files(proxy_bin_path, core_pattern)
 	if end_coredumps is None:
 		return False, ""
 	new_coredumps = end_coredumps - start_coredumps
