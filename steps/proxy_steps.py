@@ -1,13 +1,8 @@
 #steps/proxy_steps.py
 
 import subprocess
-import signal
 import pytest
 
-def run_proxy(project_dir, proxy_bin_name):
-	proxy = subprocess.run([f"{proxy_bin_name}"], cwd=project_dir, check=True)
-	assert proxy.returncode == 0, "Proxy exit code is 0"
-	return proxy
 
 def start_proxy(project_dir, proxy_bin_name, args=[]):
 	"""Starts the proxy process and returns the Popen object."""
@@ -27,9 +22,7 @@ def send_signal(proc, sig):
 def run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=None):
 	"""Runs the proxy with specified arguments and returns the CompletedProcess object."""
 	try:
-		result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=True, capture_output=True, text=True, timeout=timeout)
-	except subprocess.CalledProcessError as e:
-		pytest.fail(f"Proxy failed with code: {e.stderr}")
+		result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=False, capture_output=True, text=True, timeout=timeout)
 	except subprocess.TimeoutExpired:
 		pytest.fail(f"Proxy not finished in {timeout} seconds.")
 	except Exception as e:

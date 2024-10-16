@@ -11,7 +11,6 @@ from steps.build_steps import (
 
 from steps.proxy_steps import (
 	start_proxy,
-	run_proxy,
 	run_proxy_with_args,
 	send_signal
 )
