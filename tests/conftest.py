@@ -25,6 +25,17 @@ def proxy_bin_name(request, project_dir):
 	return os.path.abspath(f"{project_dir}/install/proxy")
 
 @pytest.fixture(scope="session")
+def log_file_path(project_dir):
+    config_path = os.path.join(project_dir, 'config.conf')
+    default_log_path = '/var/log/proxy.log'
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            for line in f:
+                if 'log_file' in line:
+                    return line.split('=')[1].strip()
+    return default_log_path
+
+@pytest.fixture(scope="session")
 def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
 
