@@ -8,7 +8,7 @@ def check_log_file_exists(log_file_path):
     return os.path.exists(log_file_path)
 
 def read_log_from_position(log_file_path, position):
-    """Read log fike from given position"""
+    """Read log file from given position"""
     with open(log_file_path, 'r') as f:
         f.seek(position)
         data = f.read()
