@@ -1,8 +1,12 @@
 import os
+import signal
 import subprocess
+import time
 import pytest
 import warnings
 
+from steps.build_steps import simple_clean, simple_make
+from steps.proxy_steps import send_signal, start_proxy
 from steps.test_steps import(
 	get_coredump_files,
 	check_for_coredump_difference,
@@ -44,6 +48,27 @@ def core_pattern():
 	"""Read  coredump pattern from coredump_pattern_file."""
 	return get_coredump_pattern()
 
+@pytest.fixture()
+def build_proxy(project_dir):
+    """Build proxy before tests."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+
+@pytest.fixture
+def clean_log_file(log_file_path):
+    """Delete log file before test."""
+    if os.path.exists(log_file_path):
+        os.remove(log_file_path)
+
+
+@pytest.fixture
+def start_proxy_process(project_dir, proxy_bin_name, proxy_timeout):
+    """Start proxy before test and finish after test."""
+    proc = start_proxy(project_dir, proxy_bin_name)
+    time.sleep(proxy_timeout)
+    yield proc
+    send_signal(proc, signal.SIGINT)
+    proc.wait(timeout=proxy_timeout)
 
 def pytest_configure(config):
 	config.coredump_check_possible = False
