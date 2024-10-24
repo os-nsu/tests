@@ -27,7 +27,7 @@ def proxy_bin_name(request, project_dir):
 @pytest.fixture(scope="session")
 def log_file_path(project_dir):
     config_path = os.path.join(project_dir, 'config.conf')
-    default_log_path = '/var/log/proxy.log'
+    default_log_path = f"{project_dir}/proxy.log"
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             for line in f:
