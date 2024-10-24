@@ -6,6 +6,7 @@ import pytest
 import warnings
 
 from steps.build_steps import simple_clean, simple_make
+from steps.logger_steps import check_log_file_exists
 from steps.proxy_steps import send_signal, start_proxy
 from steps.test_steps import(
 	get_coredump_files,
@@ -57,7 +58,7 @@ def build_proxy(project_dir):
 @pytest.fixture
 def clean_log_file(log_file_path):
     """Delete log file before test."""
-    if os.path.exists(log_file_path):
+    if check_log_file_exists(log_file_path):
         os.remove(log_file_path)
 
 
