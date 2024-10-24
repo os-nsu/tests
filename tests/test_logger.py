@@ -11,7 +11,6 @@ from steps.build_steps import simple_make, simple_clean
 
 @pytest.fixture(scope="module")
 def build_proxy(project_dir):
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     """Build proxy before tests."""
     simple_clean(project_dir)
     simple_make(project_dir)
