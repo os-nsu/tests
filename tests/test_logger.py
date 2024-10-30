@@ -15,8 +15,8 @@ def test_log_file_creation(build_proxy, project_dir, proxy_bin_name, proxy_timeo
     assert check_log_file_exists(log_file_path), "Log file wasn't created after start proxy."
 
 @pytest.mark.parametrize("message, start_position", [
-    ("ready to accept connections", 0),
-    ("new client connected", 0)])
+    ("Logger initialized", 0),
+    ("Main loop started", 0)])
 def test_log_contains_message(build_proxy, clean_log_file, start_proxy_process, proxy_timeout, message, start_position, log_file_path):
     """A parameterized test to check for the existence of a message in the log."""
     new_position = wait_for_log_message(
@@ -30,7 +30,7 @@ def test_log_contains_message(build_proxy, clean_log_file, start_proxy_process, 
 
 def test_log_messages_in_order(build_proxy, clean_log_file, start_proxy_process, proxy_timeout, log_file_path):
     """The test checks that the messages in the log appear in the correct order."""
-    messages = ["ready to accept connections", "new client connected"]
+    messages = ["Logger initialized", "Main loop started"]
     start_position = 0
     for message in messages:
         new_position = wait_for_log_message(
