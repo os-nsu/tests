@@ -34,3 +34,8 @@ def wait_for_log_message(log_file_path, start_position, message, timeout=1):
             current_position = f.tell()
         time.sleep(0.1)
     return None
+
+def clean_log_file(log_file_path):
+    """Remove existing log_file"""
+    if os.path.exists(log_file_path):
+        os.remove(log_file_path)
