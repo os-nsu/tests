@@ -22,6 +22,7 @@ def wait_for_log_message(log_file_path, start_line_num, message, timeout=1):
     """
     end_time = time.time() + timeout
     current_line_num = start_line_num
+    line = ''
 
     if not check_log_file_exists(log_file_path):
         while time.time() < end_time:
@@ -29,11 +30,12 @@ def wait_for_log_message(log_file_path, start_line_num, message, timeout=1):
                 break
             time.sleep(0.1)
         else:
-            return None, ""
+            return current_line_num, line
     try:
         with open(log_file_path, 'r') as log_file:
             for _ in range(start_line_num):
-                log_file.readline()
+                if log_file.readline() == '':
+                    break
             while time.time() < end_time:
                 line = log_file.readline()
                 if not line:
@@ -43,8 +45,8 @@ def wait_for_log_message(log_file_path, start_line_num, message, timeout=1):
                 if message in line:
                     return current_line_num, line.rstrip('\n')
     except FileNotFoundError:
-        return None, ""
-    return None, ""
+        return current_line_num, line
+    return current_line_num, line
 
 def clean_log_file(log_file_path):
     """Remove existing log_file"""

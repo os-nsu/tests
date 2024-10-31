@@ -20,6 +20,7 @@ def test_log_file_creation(project_dir, proxy_bin_name, proxy_timeout, log_file_
         send_signal(proc, signal.SIGINT)
         proc.wait(timeout=proxy_timeout)
 
+@pytest.mark.dependency()
 @pytest.mark.parametrize("message, start_position", [
     ("Logger initialized", 0),
     ("Main loop started", 0)
@@ -29,18 +30,18 @@ def test_log_contains_message(project_dir, proxy_bin_name, proxy_timeout, messag
     proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
 
     try:
-        new_position = wait_for_log_message(
+        line_number, line_content = wait_for_log_message(
             log_file_path,
             start_position,
             message,
             timeout=proxy_timeout
         )
-        assert new_position is not None, f"Message '{message}' wasn't found in log."
+        assert message in line_content, f"Message '{message}' wasn't found in log ({log_file_path}), last checked line: {line_number}:{line_content}."
     finally:
         send_signal(proc, signal.SIGINT)
         proc.wait(timeout=proxy_timeout)
 
-
+@pytest.mark.dependency(depends=["test_log_contains_message"])
 def test_log_messages_in_order(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
     """Test that messages appear in the log in the correct order."""
     messages = ["Logger initialized", "Main loop started"]
@@ -50,13 +51,13 @@ def test_log_messages_in_order(project_dir, proxy_bin_name, proxy_timeout, log_f
 
     try:
         for message in messages:
-            new_position = wait_for_log_message(
+            new_position, line = wait_for_log_message(
                 log_file_path,
                 start_position,
                 message,
                 timeout=proxy_timeout
             )
-            assert new_position is not None, f"Message '{message}' wasn't found in log."
+            assert message in line, f"Message '{message}' wasn't found in log ({log_file_path}), last checked line: {new_position}:{line}."
             start_position = new_position
     finally:
         send_signal(proc, signal.SIGINT)
