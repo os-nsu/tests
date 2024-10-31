@@ -15,7 +15,7 @@ def test_log_file_creation(project_dir, proxy_bin_name, proxy_timeout, log_file_
     proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
 
     try:
-        assert check_log_file_exists(log_file_path), "Log file wasn't created after starting the proxy."
+        assert check_log_file_exists(log_file_path), f"Log file ({log_file_path}) wasn't created after starting the proxy."
     finally:
         send_signal(proc, signal.SIGINT)
         proc.wait(timeout=proxy_timeout)
