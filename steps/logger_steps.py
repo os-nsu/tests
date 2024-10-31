@@ -43,7 +43,7 @@ def wait_for_log_message(log_file_path, start_line_num, message, timeout=1):
                     continue
                 current_line_num += 1
                 if message in line:
-                    return current_line_num, line.rstrip('\n')
+                    return current_line_num, line.rstrip()
     except FileNotFoundError:
         return current_line_num, line
     return current_line_num, line
