@@ -1,7 +1,11 @@
 #steps/proxy_steps.py
 
+import os
 import subprocess
+import time
 import pytest
+
+from steps.build_steps import simple_clean, simple_make
 
 
 def start_proxy(project_dir, proxy_bin_name, args=[]):
@@ -28,3 +32,15 @@ def run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=None):
 	except Exception as e:
 		pytest.fail(f"Can't start proxy with args {args}: {e}")
 	return result
+
+def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
+    # Clean, build, clean log_file and start the proxy
+    simple_clean(project_dir)
+    simple_make(project_dir)
+
+    if os.path.exists(log_file_path):
+        os.remove(log_file_path)
+
+    proc = start_proxy(project_dir, proxy_bin_name)
+    time.sleep(proxy_timeout)
+    return proc
