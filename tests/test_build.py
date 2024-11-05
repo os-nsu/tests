@@ -2,9 +2,6 @@
 
 import subprocess
 import os
-import pytest
-import time
-import signal
 
 from steps.build_steps import (
 	simple_make,
