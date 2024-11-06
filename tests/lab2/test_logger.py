@@ -9,7 +9,6 @@ from steps.proxy_steps import build_and_start_proxy, start_proxy, send_signal
 from steps.logger_steps import check_log_file_exists, clean_log_file, wait_for_log_message
 from steps.build_steps import simple_make, simple_clean
 
-
 def test_log_file_creation(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
     """Test that log file is created after starting the proxy."""
     proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
@@ -41,6 +40,7 @@ def test_log_contains_message(project_dir, proxy_bin_name, proxy_timeout, messag
         send_signal(proc, signal.SIGINT)
         proc.wait(timeout=proxy_timeout)
 
+@pytest.mark.lab2
 @pytest.mark.dependency(depends=["test_log_contains_message"])
 def test_log_messages_in_order(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
     """Test that messages appear in the log in the correct order."""

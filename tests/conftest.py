@@ -17,6 +17,38 @@ from steps.test_steps import(
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
+	parser.addoption("--lab-num", action="store", default=None, type=int, help="Run tests up to the specified lab number.")
+
+def pytest_collection_modifyitems(config, items):
+	#print("CHERRY CHERRY LADY")
+	lab_num = config.getoption("--lab-num")
+	#print(lab_num)
+
+	if lab_num is None:
+		return
+
+	selected_items = []
+	deselected_items = []
+
+	base_tests_dir = os.path.abspath(os.path.dirname(__file__))
+	#print(f"base_test_dir: {base_tests_dir}")
+	included_lab_dir = os.path.abspath(os.path.join(base_tests_dir, f'lab{lab_num}'))
+	#print(f"included_lab_dir: {included_lab_dir}")
+	for item in items:
+		test_file = os.path.abspath(item.fspath)
+		test_dir = os.path.dirname(test_file)
+		print(f"test_dir: {test_dir}, test_file: {test_file}")
+		if test_dir.startswith(included_lab_dir):
+			#print(f"selected item, startswith: {test_dir.startswith(included_lab_dir)}")
+			selected_items.append(item)
+		else:
+			#print(f"deselected item, startswith: {test_dir.startswith(included_lab_dir)}")
+			deselected_items.append(item)
+
+	if deselected_items:
+		config.hook.pytest_deselected(items=deselected_items)
+		items[:] = selected_items
+
 
 @pytest.fixture(scope="session")
 def project_dir(request):
@@ -31,14 +63,14 @@ def proxy_bin_name(request, project_dir):
 
 @pytest.fixture(scope="session")
 def log_file_path(project_dir):
-    config_path = os.path.join(project_dir, 'config.conf')
-    default_log_path = f"{project_dir}/logs/proxy.log"
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            for line in f:
-                if 'log_file' in line:
-                    return line.split('=')[1].strip()
-    return default_log_path
+	config_path = os.path.join(project_dir, 'config.conf')
+	default_log_path = f"{project_dir}/logs/proxy.log"
+	if os.path.exists(config_path):
+		with open(config_path, 'r') as f:
+			for line in f:
+				if 'log_file' in line:
+					return line.split('=')[1].strip()
+	return default_log_path
 
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
