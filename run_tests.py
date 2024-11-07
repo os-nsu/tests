@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#run_tests.py
+# run_tests.py
 
 # The main entrypoint for running tests
 

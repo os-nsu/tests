@@ -1,4 +1,4 @@
-#steps/build_steps.py
+# steps/build_steps.py
 
 import subprocess
 import os
