@@ -35,9 +35,15 @@ def pytest_collection_modifyitems(config, items):
 		test_file = os.path.abspath(item.fspath)
 		test_dir = os.path.dirname(test_file)
 
-		if any(test_dir.startswith(os.path.abspath(os.path.join(base_tests_dir, lab))) for lab in included_labs):
-			selected_items.append(item)
-		else:
+		is_included = False
+		for lab in included_labs:
+			lab_dir = os.path.abspath(os.path.join(base_tests_dir, lab))
+			if test_dir.startswith(lab_dir):
+				is_included = True
+				selected_items.append(item)
+				break
+
+		if not is_included:
 			deselected_items.append(item)
 
 	if deselected_items:
