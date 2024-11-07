@@ -15,7 +15,7 @@ from steps.test_steps import(
 )
 # CLI arguments parser
 def pytest_addoption(parser):
-	parser.addoption("--src", action="store")
+	parser.addoption("--src", action="store", help="Path to the proxy source directory.")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
 	parser.addoption("--lab-num", action="store", default=None, type=int, nargs='+' ,help="Run tests up to the specified lab number.")
 
