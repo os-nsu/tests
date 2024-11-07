@@ -1,8 +1,7 @@
-# tests/test_build.py
+# tests/lab1/test_build.py
 
 import subprocess
 import os
-import pytest
 
 from steps.build_steps import (
 	simple_make,

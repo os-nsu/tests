@@ -1,7 +1,5 @@
-# tests/test_logger.py
+# tests/lab2/test_logger.py
 
-import os
-import time
 import signal
 import pytest
 

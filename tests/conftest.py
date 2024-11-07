@@ -1,7 +1,7 @@
+#tests/conftest.py
+
 import os
-import signal
 import subprocess
-import time
 import pytest
 import warnings
 
