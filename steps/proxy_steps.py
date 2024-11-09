@@ -44,3 +44,8 @@ def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_p
     proc = start_proxy(project_dir, proxy_bin_name)
     time.sleep(proxy_timeout)
     return proc
+
+def build_and_start_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout, args, log_file_path):
+	proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
+	run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=proxy_timeout)
+	return proc
