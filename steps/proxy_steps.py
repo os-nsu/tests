@@ -1,4 +1,4 @@
-#steps/proxy_steps.py
+# steps/proxy_steps.py
 
 import os
 import subprocess
@@ -33,7 +33,7 @@ def run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=None):
 		pytest.fail(f"Can't start proxy with args {args}: {e}")
 	return result
 
-def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
+def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path=None):
     # Clean, build, clean log_file and start the proxy
     simple_clean(project_dir)
     simple_make(project_dir)
