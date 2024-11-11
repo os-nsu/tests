@@ -33,7 +33,7 @@ def run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=None):
 		pytest.fail(f"Can't start proxy with args {args}: {e}")
 	return result
 
-def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
+def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout,log_file_path, args=[]):
     # Clean, build, clean log_file and start the proxy
     simple_clean(project_dir)
     simple_make(project_dir)
@@ -41,11 +41,6 @@ def build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_p
     if os.path.exists(log_file_path):
         os.remove(log_file_path)
 
-    proc = start_proxy(project_dir, proxy_bin_name)
+    proc = start_proxy(project_dir, proxy_bin_name, args=args)
     time.sleep(proxy_timeout)
     return proc
-
-def build_and_start_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout, args, log_file_path):
-	proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
-	run_proxy_with_args(project_dir, proxy_bin_name, args, timeout=proxy_timeout)
-	return proc

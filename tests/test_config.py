@@ -2,7 +2,7 @@ import pytest
 import time
 import signal
 
-from steps.proxy_steps import start_proxy, send_signal, build_and_start_and_run_proxy
+from steps.proxy_steps import start_proxy, send_signal, build_and_start_proxy
 from steps.logger_steps import wait_for_log_message
 from entities.proxy import Proxy
 
@@ -10,22 +10,21 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 	empty_config = tmp_path / "empty.conf"
 	proxy = Proxy(config_path=empty_config)
 
-	result = build_and_start_and_run_proxy(
-		project_dir=project_dir,
-		proxy_bin_name=proxy_bin_name,
+	result = build_and_start_proxy(
+		project_dir,
+		proxy_bin_name,
+		log_file_path,
 		args=["-c", str(empty_config)],
-		log_file_path=log_file_path
 	)
 
 	assert result.returncode == 0, "Proxy failed to start with an empty config"
 	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior with empty config"
 
 def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
-	result = build_and_start_and_run_proxy(
-		project_dir=project_dir,
-		proxy_bin_name=proxy_bin_name,
-		args=[],
-		log_file_path=log_file_path
+	result = build_and_start_proxy(
+		project_dir,
+		proxy_bin_name,
+		log_file_path
 	)
 
 	assert result.returncode == 0, "Proxy failed to start without config"
@@ -42,11 +41,11 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 	proxy = Proxy(config_path=invalid_config)
 	proxy.update_config(config_content)
 
-	result = build_and_start_and_run_proxy(
-		project_dir=project_dir,
-		proxy_bin_name=proxy_bin_name,
-		args=["-c", str(invalid_config)],
-		log_file_path=log_file_path
+	result = build_and_start_proxy(
+		project_dir,
+		proxy_bin_name,
+		log_file_path,
+		args=["-c", str(invalid_config)]
 	)
 
 	assert result.returncode != 0, "Proxy should fail with invalid config"
@@ -56,14 +55,13 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 	large_config = tmp_path / "large.conf"
 	proxy = Proxy(config_path=large_config)
 
-	# Создание конфигурационного файла размером 1ГБ, где значимая часть — в конце
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
-	result = build_and_start_and_run_proxy(
-		project_dir=project_dir,
-		proxy_bin_name=proxy_bin_name,
-		args=["-c", str(large_config)],
-		log_file_path=log_file_path
+	result = build_and_start_proxy(
+		project_dir,
+		proxy_bin_name,
+		log_file_path,
+		args=["-c", str(large_config)]
 	)
 
 	assert result.returncode == 0, "Proxy failed to start with large config"
@@ -75,19 +73,15 @@ def test_proxy_reload_config(project_dir, proxy_bin_name, tmp_path, proxy_timeou
 	proxy = Proxy(config_path=config)
 	proxy.update_config('option="initial_value"')
 
-	# Запускаем прокси
 	proc = start_proxy(project_dir, proxy_bin_name, args=["-c", str(config)])
 	time.sleep(proxy_timeout)
 
 	try:
-		# Изменяем конфигурацию
 		proxy.update_config('option="new_value"')
 		send_signal(proc, signal.SIGHUP)
 
-		# Проверяем, что файл конфигурации был изменен
 		assert proxy.has_config_changed(), "Config file modification time did not update after SIGHUP"
 
-		# Ожидаем сообщение об обновлении в логе
 		line_number, line_content = wait_for_log_message(
 			log_file_path=log_file_path,
 			start_position=0,
