@@ -31,10 +31,10 @@ def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior without config"
 
 @pytest.mark.parametrize("config_content", [
-	'option_without_equals',           # отсутствует знак "="
-	'invalid_option = "value"',        # неверная опция
-	'correct_option = "missing_quote', # отсутствует закрывающая кавычка
-	'correct_option "no_equals"',      # нет знака "="
+	'option_without_equals',           # without "="
+	'invalid_option = "value"',        # invalid_option
+	'correct_option = "missing_quote', # missing quote
+	'correct_option "no_equals"',      # no "="
 ])
 def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config_content, log_file_path):
 	invalid_config = tmp_path / "invalid.conf"
