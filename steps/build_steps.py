@@ -1,22 +1,38 @@
+# steps/build_steps.py
+
 import subprocess
 import os
+import sys
 
 def simple_make(project_dir):
-	res = subprocess.run(["make"], cwd=project_dir, capture_output=True, check=False)
-	assert res.returncode == 0, "make finished with no-zero return code"
-	assert len(res.stderr) == 0, f"make has stderr '{res.stderr}'"
-	return res
+	return make_with_env(project_dir)
 
 def simple_clean(project_dir):
-	res = subprocess.run(["make", "clean"], cwd=project_dir, capture_output=True, check=True)
+	res = subprocess.run(["make", "clean"], cwd=project_dir, capture_output=True, check=False)
 	assert res.returncode == 0, "make clean finished with no-zero return code"
 	assert len(res.stderr) == 0, f"make clean has stderr '{res.stderr}'"
 	return res
 
-
-def make_with_flags(project_dir, cflags):
+def make_with_env(project_dir, extra_env={}):
 	"""Builds the proxy with specified flags."""
+
 	env = os.environ.copy()
-	env['CFLAGS'] = cflags
-	subprocess.run(["make", "clean"], cwd=project_dir, check=True)
-	subprocess.run(["make"], cwd=project_dir, env=env, check=True)
+	env.update(extra_env)
+
+	env.setdefault("COPT", "")
+	env.setdefault("CFLAGS", "")
+
+	env["COPT"] = f"-Werror -Wall {env["COPT"]}"
+	env["CFLAGS"] = f"-Og -fno-omit-frame-pointer -ggdb3 {env["CFLAGS"]}"
+	env["CXXFLAGS"] = f"{env["CFLAGS"]} {env["COPT"]}"
+
+	res = subprocess.run(["make"], cwd=project_dir, env=env, check=False, capture_output=True)
+
+	# Show all output in tests
+	print(res.stdout.decode('ascii'), file=sys.stdout)
+	print(res.stderr.decode('ascii'), file=sys.stderr)
+
+	assert res.returncode == 0, "make finished with no-zero return code"
+	assert len(res.stderr) == 0, f"make output has stderr '{res.stderr}'"
+
+	return res
