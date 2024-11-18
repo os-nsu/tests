@@ -1,7 +1,7 @@
 import os
 
 class Proxy:
-	def _init_(self, config_path=None):
+	def __init__(self, config_path=None):
 		self.config_path = config_path
 		if config_path and not os.path.exists(config_path):
 			self._create_default_config(config_path)
