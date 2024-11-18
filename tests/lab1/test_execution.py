@@ -6,7 +6,7 @@ import time
 import signal
 
 from steps.build_steps import (
-    make_with_flags
+    make_with_env
 )
 
 from steps.proxy_steps import (
