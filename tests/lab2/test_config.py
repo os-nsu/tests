@@ -17,6 +17,8 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 		args=["-c", str(empty_config)],
 	)
 
+	result.wait()
+
 	assert result.returncode == 0, "Proxy failed to start with an empty config"
 	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior with empty config"
 
@@ -26,6 +28,8 @@ def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 		proxy_bin_name,
 		log_file_path
 	)
+
+	result.wait()
 
 	assert result.returncode == 0, "Proxy failed to start without config"
 	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior without config"
@@ -48,6 +52,8 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 		args=["-c", str(invalid_config)]
 	)
 
+	result.wait()
+
 	assert result.returncode != 0, "Proxy should fail with invalid config"
 	assert "Config file error" in result.stderr, "Proxy did not report error for invalid config line ('{config_content}')"
 
@@ -63,6 +69,8 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 		log_file_path,
 		args=["-c", str(large_config)]
 	)
+
+	result.wait()
 
 	assert result.returncode == 0, "Proxy failed to start with large config"
 	assert "Configuration loaded successfully" in result.stdout, "Proxy did not handle large config correctly"
