@@ -5,7 +5,7 @@ import os
 import sys
 
 def simple_make(project_dir):
-	return make_with_env(project_dir)
+	return make(project_dir)
 
 def simple_clean(project_dir):
 	res = subprocess.run(["make", "clean"], cwd=project_dir, capture_output=True, check=False)
@@ -13,9 +13,8 @@ def simple_clean(project_dir):
 	assert len(res.stderr) == 0, f"make clean has stderr '{res.stderr}'"
 	return res
 
-def make_with_env(project_dir, extra_env={}):
+def make(project_dir, make_args=[], extra_env={}):
 	"""Builds the proxy with specified flags."""
-
 	env = os.environ.copy()
 	env.update(extra_env)
 
@@ -26,7 +25,7 @@ def make_with_env(project_dir, extra_env={}):
 	env["CFLAGS"] = f"-Og -fno-omit-frame-pointer -ggdb3 {env["CFLAGS"]}"
 	env["CXXFLAGS"] = f"{env["CFLAGS"]} {env["COPT"]}"
 
-	res = subprocess.run(["make"], cwd=project_dir, env=env, check=False, capture_output=True)
+	res = subprocess.run(["make"] + make_args, cwd=project_dir, env=env, check=False, capture_output=True)
 
 	# Show all output in tests
 	print(res.stdout.decode('utf-8'), file=sys.stdout)

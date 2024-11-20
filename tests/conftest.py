@@ -5,9 +5,7 @@ import subprocess
 import pytest
 import warnings
 
-from steps.build_steps import simple_clean, simple_make
-from steps.logger_steps import check_log_file_exists
-from steps.proxy_steps import send_signal, start_proxy
+from steps.proxy_steps import run_proxy
 from steps.test_steps import(
 	get_coredump_files,
 	check_for_coredump_difference,

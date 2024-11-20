@@ -3,13 +3,12 @@
 import signal
 import pytest
 
-from steps.proxy_steps import build_and_start_proxy, start_proxy, send_signal
-from steps.logger_steps import check_log_file_exists, clean_log_file, wait_for_log_message
-from steps.build_steps import simple_make, simple_clean
+from steps.proxy_steps import build_and_run_proxy, send_signal
+from steps.logger_steps import check_log_file_exists, wait_for_log_message
 
 def test_log_file_creation(project_dir, proxy_bin_name, proxy_timeout, log_file_path):
 	"""Test that log file is created after starting the proxy."""
-	proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, log_file_path, proxy_timeout, wait=True)
 
 	try:
 		assert check_log_file_exists(log_file_path), f"Log file ({log_file_path}) wasn't created after starting the proxy."
@@ -24,7 +23,7 @@ def test_log_file_creation(project_dir, proxy_bin_name, proxy_timeout, log_file_
 ])
 def test_log_contains_message(project_dir, proxy_bin_name, proxy_timeout, message, start_position, log_file_path):
 	"""Test that specific messages are presented in the log."""
-	proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, log_file_path, proxy_timeout, wait=True)
 
 	try:
 		line_number, line_content = wait_for_log_message(
@@ -44,7 +43,7 @@ def test_log_messages_in_order(project_dir, proxy_bin_name, proxy_timeout, log_f
 	messages = ["Logger initialized", "Main loop started"]
 	start_position = 0
 
-	proc = build_and_start_proxy(project_dir, proxy_bin_name, proxy_timeout, log_file_path)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, log_file_path, proxy_timeout, wait=True)
 
 	try:
 		for message in messages:
