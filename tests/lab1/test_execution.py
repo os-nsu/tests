@@ -45,7 +45,7 @@ def test_run_with_invalid_arguments(project_dir, proxy_bin_name, proxy_timeout):
 	try:
 		result = run_proxy_with_args(project_dir, proxy_bin_name, ['--invalid_arg'], timeout=proxy_timeout)
 		assert result.returncode != 0, "Proxy should exit with non-zero code when given invalid arguments."
-		assert "Invalid argument" in result.stderr or "unknown option" in result.stderr, "Expected error message for invalid argument."
+		assert "Invalid argument" in result.stderr or "unrecognized option" in result.stderr, "Expected error message for invalid argument."
 	except subprocess.CalledProcessError as e:
 		pytest.fail(f"Proxy finish with error: {e.stderr}")
 	except subprocess.TimeoutExpired:
