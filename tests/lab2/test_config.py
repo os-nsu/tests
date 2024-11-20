@@ -18,9 +18,10 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 	)
 
 	result.wait()
+	stdout, stderr = result.communicate()
 
 	assert result.returncode == 0, "Proxy failed to start with an empty config"
-	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior with empty config"
+	assert "Using default configuration" in stdout, "Unexpected behavior with empty config"
 
 def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 	result = build_and_start_proxy(
@@ -30,9 +31,10 @@ def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 	)
 
 	result.wait()
+	stdout, stderr = result.communicate()
 
 	assert result.returncode == 0, "Proxy failed to start without config"
-	assert "Using default configuration" in result.stdout in result.stderr, "Unexpected behavior without config"
+	assert "Using default configuration" in stdout, "Unexpected behavior without config"
 
 @pytest.mark.parametrize("config_content", [
 	'option_without_equals',           # without "="
@@ -53,9 +55,10 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 	)
 
 	result.wait()
+	stdout, stderr = result.communicate()
 
 	assert result.returncode != 0, "Proxy should fail with invalid config"
-	assert "Config file error" in result.stderr, "Proxy did not report error for invalid config line ('{config_content}')"
+	assert "Config file error" in stderr, "Proxy did not report error for invalid config line ('{config_content}')"
 
 def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file_path):
 	large_config = tmp_path / "large.conf"
@@ -71,9 +74,10 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 	)
 
 	result.wait()
+	stdout, stderr = result.communicate()
 
 	assert result.returncode == 0, "Proxy failed to start with large config"
-	assert "Configuration loaded successfully" in result.stdout, "Proxy did not handle large config correctly"
+	assert "Configuration loaded successfully" in stdout, "Proxy did not handle large config correctly"
 
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
 def test_proxy_reload_config(project_dir, proxy_bin_name, tmp_path, proxy_timeout, log_file_path):
