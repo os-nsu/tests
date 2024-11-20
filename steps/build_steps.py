@@ -29,8 +29,8 @@ def make_with_env(project_dir, extra_env={}):
 	res = subprocess.run(["make"], cwd=project_dir, env=env, check=False, capture_output=True)
 
 	# Show all output in tests
-	print(res.stdout.decode('ascii'), file=sys.stdout)
-	print(res.stderr.decode('ascii'), file=sys.stderr)
+	print(res.stdout.decode('utf-8'), file=sys.stdout)
+	print(res.stderr.decode('utf-8'), file=sys.stderr)
 
 	assert res.returncode == 0, "make finished with no-zero return code"
 	assert len(res.stderr) == 0, f"make output has stderr '{res.stderr}'"
