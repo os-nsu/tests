@@ -12,7 +12,7 @@ from steps.proxy_steps import (
 
 def test_run_without_arguments(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests that the proxy starts successfully without arguments and can be terminated cleanly."""
-	proc = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, wait=True)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, wait=False)
 	time.sleep(proxy_timeout)
 	try:
 		send_signal(proc, signal.SIGINT)
