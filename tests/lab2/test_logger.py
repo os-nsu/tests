@@ -57,5 +57,5 @@ def test_log_messages_in_order(project_dir, proxy_bin_name, proxy_timeout, log_f
 			start_position = new_position
 	finally:
 		send_signal(proc, signal.SIGINT)
-		proc.wait(timeout=proxy_timeout)
+		proc.wait(proxy_timeout)
 
