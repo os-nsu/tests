@@ -15,7 +15,7 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 		proxy_bin_name,
 		log_file_path,
 		args=["-c", str(empty_config)],
-		wait=False
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -29,7 +29,7 @@ def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 		project_dir,
 		proxy_bin_name,
 		log_file_path,
-		wait=False
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -54,7 +54,7 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 		proxy_bin_name,
 		log_file_path,
 		args=["-c", str(invalid_config)],
-		wait=False
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -74,7 +74,7 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 		proxy_bin_name,
 		log_file_path,
 		args=["-c", str(large_config)],
-		wait=False
+		wait_until_end=False
 	)
 
 	result.wait()

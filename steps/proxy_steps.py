@@ -8,7 +8,7 @@ import pytest
 from steps.build_steps import simple_clean, make
 
 
-def run_proxy(project_dir, proxy_bin_name, args=[], timeout=None, env=None, wait=True):
+def run_proxy(project_dir, proxy_bin_name, args=[], timeout=None, env=None, wait_until_end=True):
     """
     Runs the proxy with specified arguments.
 
@@ -16,7 +16,7 @@ def run_proxy(project_dir, proxy_bin_name, args=[], timeout=None, env=None, wait
     If wait is False, starts the process and returns the Popen object.
     """
     try:
-        if wait:
+        if wait_until_end:
             result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=False, capture_output=True, text=True, timeout=timeout, env=env)
             return result
         else:
@@ -34,7 +34,7 @@ def send_signal(proc, sig):
 	else:
 		pytest.fail("Cannot send signal; process is not running or already finished.")
 
-def build_and_run_proxy(project_dir, proxy_bin_name, log_file_path=None, proxy_timeout=0, args=[], make_args=[], extra_env={}, env=None, wait=True):
+def build_and_run_proxy(project_dir, proxy_bin_name, log_file_path=None, proxy_timeout=0, args=[], make_args=[], extra_env={}, env=None, wait_until_end=True):
     """
     Builds the proxy and runs it with specified arguments.
 
@@ -59,6 +59,6 @@ def build_and_run_proxy(project_dir, proxy_bin_name, log_file_path=None, proxy_t
     if log_file_path and os.path.exists(log_file_path):
         os.remove(log_file_path)
 
-    result = run_proxy(project_dir, proxy_bin_name, args=args, env=env, timeout=proxy_timeout if wait else None, wait=wait)
+    result = run_proxy(project_dir, proxy_bin_name, args=args, env=env, timeout=proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end)
 
     return result

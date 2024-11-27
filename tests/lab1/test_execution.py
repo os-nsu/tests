@@ -12,7 +12,7 @@ from steps.proxy_steps import (
 
 def test_run_without_arguments(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests that the proxy starts successfully without arguments and can be terminated cleanly."""
-	proc = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, wait=False)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, wait_until_end=False)
 	time.sleep(proxy_timeout)
 	try:
 		send_signal(proc, signal.SIGINT)
@@ -26,7 +26,7 @@ def test_run_without_arguments(project_dir, proxy_bin_name, proxy_timeout):
 def test_run_with_help_argument(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests running the proxy successfully with '--help' argument."""
 	try:
-		result = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, args=['--help'], wait=True)
+		result = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, args=['--help'], wait_until_end=True)
 		expected_returncode = 0
 		assert result.returncode == expected_returncode, f"Proxy with '--help' argument finish with code {result.returncode}, exptected {expected_returncode} ."
 		assert  result.stdout != "", "Expected usage information in output."
@@ -38,7 +38,7 @@ def test_run_with_help_argument(project_dir, proxy_bin_name, proxy_timeout):
 def test_run_with_invalid_arguments(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests running the proxy with invalid arguments."""
 	try:
-		result = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, args=['--invalid_arg'], wait=True)
+		result = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, args=['--invalid_arg'], wait_until_end=True)
 		assert result.returncode != 0, "Proxy should exit with non-zero code when given invalid arguments."
 		assert "Invalid argument" in result.stderr or "unrecognized option" in result.stderr, "Expected error message for invalid argument."
 	except subprocess.CalledProcessError as e:
