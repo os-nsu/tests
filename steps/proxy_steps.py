@@ -47,7 +47,7 @@ def build_and_run_proxy(project_dir, proxy_bin_name, log_file_path=None, proxy_t
         make_args: Arguments to pass to make proxy.
         extra_env: Extra environment variables to make proxy.
         env: Environment variables to run proxy.
-        wait: If True, waits for the proxy to finish.
+        wait_until_end: If True, waits for the proxy to finish.
 
     Returns:
         If wait=True, returns the CompletedProcess object.
