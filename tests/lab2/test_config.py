@@ -2,7 +2,7 @@ import pytest
 import time
 import signal
 
-from steps.proxy_steps import start_proxy, send_signal, build_and_start_proxy
+from steps.proxy_steps import run_proxy, send_signal, build_and_run_proxy
 from steps.logger_steps import wait_for_log_message
 from entities.proxy import Proxy
 
@@ -10,11 +10,12 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 	empty_config = tmp_path / "empty.conf"
 	proxy = Proxy(config_path=empty_config)
 
-	result = build_and_start_proxy(
+	result = build_and_run_proxy(
 		project_dir,
 		proxy_bin_name,
 		log_file_path,
 		args=["-c", str(empty_config)],
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -24,10 +25,11 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 	assert "Using default configuration" in stdout, "Unexpected behavior with empty config"
 
 def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
-	result = build_and_start_proxy(
+	result = build_and_run_proxy(
 		project_dir,
 		proxy_bin_name,
-		log_file_path
+		log_file_path,
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -47,11 +49,12 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 	proxy = Proxy(config_path=invalid_config)
 	proxy.update_config(config_content)
 
-	result = build_and_start_proxy(
+	result = build_and_run_proxy(
 		project_dir,
 		proxy_bin_name,
 		log_file_path,
-		args=["-c", str(invalid_config)]
+		args=["-c", str(invalid_config)],
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -66,11 +69,12 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
-	result = build_and_start_proxy(
+	result = build_and_run_proxy(
 		project_dir,
 		proxy_bin_name,
 		log_file_path,
-		args=["-c", str(large_config)]
+		args=["-c", str(large_config)],
+		wait_until_end=False
 	)
 
 	result.wait()
@@ -85,7 +89,7 @@ def test_proxy_reload_config(project_dir, proxy_bin_name, tmp_path, proxy_timeou
 	proxy = Proxy(config_path=config)
 	proxy.update_config('option="initial_value"')
 
-	proc = start_proxy(project_dir, proxy_bin_name, args=["-c", str(config)])
+	proc = run_proxy(project_dir, proxy_bin_name, args=["-c", str(config)], wait=False)
 	time.sleep(proxy_timeout)
 
 	try:

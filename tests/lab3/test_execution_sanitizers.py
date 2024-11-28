@@ -5,14 +5,8 @@ import pytest
 import time
 import signal
 
-from steps.build_steps import (
-	simple_clean,
-    make_with_env
-)
-
 from steps.proxy_steps import (
-	start_proxy,
-	run_proxy_with_args,
+	build_and_run_proxy,
 	send_signal
 )
 
@@ -31,9 +25,7 @@ def test_execution_with_sanitizers(project_dir, proxy_bin_name, proxy_timeout, s
 	extra_env["ASAN_OPTIONS"] = f"{extra_env["SANITIZER_OPTIONS"]}:detect_stack_use_after_return=0:check_initialization_order=1:strict_init_order=1"
 	extra_env["UBSAN_OPTIONS"] = f"{extra_env["SANITIZER_OPTIONS"]}"
 
-	simple_clean(project_dir)
-	make_with_env(project_dir, extra_env)
-	proc = start_proxy(project_dir, proxy_bin_name)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, extra_env=extra_env, wait_until_end=False)
 	time.sleep(proxy_timeout)
 	try:
 		send_signal(proc, signal.SIGINT)

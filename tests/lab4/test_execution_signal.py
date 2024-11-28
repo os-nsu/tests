@@ -6,7 +6,7 @@ import time
 import signal
 
 from steps.proxy_steps import (
-	build_and_start_proxy,
+	build_and_run_proxy,
 	send_signal
 )
 
@@ -17,7 +17,7 @@ from steps.proxy_steps import (
 ])
 def test_proxy_termination_on_signal(project_dir, proxy_bin_name, sig, signal_name, proxy_timeout, log_file_path):
 	"""Tests that the proxy correctly terminates upon receiving specific signals."""
-	proc = build_and_start_proxy(project_dir=project_dir, proxy_bin_name=proxy_bin_name, proxy_timeout=proxy_timeout, log_file_path=log_file_path)
+	proc = build_and_run_proxy(project_dir, proxy_bin_name, log_file_path, proxy_timeout, wait_until_end=False)
 	time.sleep(proxy_timeout)
 	try:
 		send_signal(proc, sig)
