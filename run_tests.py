@@ -41,6 +41,9 @@ def run_pytest():
 	# Show verbose info where possible
 	args += ["-v"]
 
+	# Run dependency tests before
+	args += ["--order-dependencies"]
+
 	# Add custom args after predefined ones so they could be redefined
 	args += sys.argv[1:]
 

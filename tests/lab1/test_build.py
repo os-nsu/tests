@@ -2,48 +2,79 @@
 
 import subprocess
 import os
+import pytest
 
 from steps.build_steps import (
 	simple_make,
 	simple_clean,
 )
+from steps.test_steps import (
+    check_file_exists
+)
+# -------------------------------------
+# Tests for the static library
+# -------------------------------------
 
-def test_successful_make_clean(project_dir):
-	"""Tests cleaning the project using 'make clean'."""
-	simple_make(project_dir)
-	simple_clean(project_dir)
-	# TODO: compare folders contents before and after clean
-	cleaned = True
-	assert cleaned, "make clean removed all build artifacts"
+@pytest.mark.dependency(depends=[
+    "tests/lab1/test_file_structure.py::test_files_exist[Makefile]",
+    "tests/lab1/test_file_structure.py::test_directories_exist[src]",
+    "tests/lab1/test_file_structure.py::test_directories_exist[src/backend]",
+    "tests/lab1/test_file_structure.py::test_files_exist[src/backend/static_lib.c]",
+    "tests/lab1/test_file_structure.py::test_files_exist[src/backend/master.c]"
+], scope='session')
+def test_static_library_compilation(project_dir, master_bin_name):
+    """Test that the master and static library compile successfully."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+    check_file_exists(master_bin_name)
 
-def test_successful_compilation(project_dir, proxy_bin_name):
-	"""Tests that the proxy compile successfully."""
-	simple_clean(project_dir)
-	simple_make(project_dir)
-	assert os.path.exists(f"{proxy_bin_name}"), "Proxy binary exists"
+@pytest.mark.dependency(depends=["test_static_library_compilation"])
+def test_static_library_inclusion(project_dir, master_bin_name):
+    """Test that the static library function is included in the proxy executable."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+    result = subprocess.run(["nm", "--defined-only", master_bin_name], capture_output=True, text=True)
+    assert result.returncode == 0, "nm command failed."
+    symbols = result.stdout
+    assert "hello_from_static_lib" in symbols, "Function 'hello_from_static_lib' not found in master binary symbols."
 
-def test_library_symbols(proxy_bin_name):
-	"""Tests that the proxy binary contains expected library symbols."""
-	result = subprocess.run(["nm", "--defined-only", f"{proxy_bin_name}"], capture_output=True, text=True)
-	symbols = result.stdout
-	assert "init" in symbols, "Missing 'init' symbol"
-	assert "fini" in symbols, "Missing 'fini' symbol"
+# -------------------------------------
+# Tests for the dynamic library
+# -------------------------------------
 
-def test_makefile_exists(project_dir):
-    makefile_path = os.path.join(project_dir, 'Makefile')
-    assert os.path.exists(makefile_path), "Makefile is missing"
+@pytest.mark.dependency(depends=[
+    "tests/lab1/test_build.py::test_static_library_compilation",
+    "tests/lab1/test_file_structure.py::test_files_exist[src/backend/dynamic_lib.c]",],
+                        scope="session")
+def test_dynamic_library_compilation(project_dir):
+    """Test that the dynamic library compiles successfully."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+    dynamic_lib = os.path.join(project_dir, 'install', 'libdynamic.so')
+    check_file_exists(dynamic_lib)
 
-def test_project_structure(project_dir):
-    expected_dirs = ['src', 'src/include']
-    for dir_name in expected_dirs:
-        dir_path = os.path.join(project_dir, dir_name)
-        assert os.path.isdir(dir_path), f"Directory {dir_name} is missing"
+@pytest.mark.dependency(depends=["test_dynamic_library_compilation"])
+def test_dynamic_library_dependencies(project_dir, master_bin_name):
+    """Test that the dynamic library links to proxy executable."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+    result = subprocess.run(["ldd", master_bin_name], capture_output=True, text=True)
+    assert result.returncode == 0, "ldd command failed."
+    dependencies = result.stdout
+    assert "libdynamic.so" in dependencies, "Dynamic library 'libdynamic.so' not found in master binary dependencies."
 
+# -------------------------------------
+# Tests for the plugin
+# -------------------------------------
 
-def test_compilation_without_warnings(project_dir):
-    result = subprocess.run(
-        ["make", "-C", project_dir, "CFLAGS=-Werror"],
-        capture_output=True,
-        text=True
-    )
-    assert result.returncode == 0, "Compilation failed due to warnings"
+@pytest.mark.dependency(depends=[
+    "tests/lab1/test_build.py::test_dynamic_library_compilation",
+    "tests/lab1/test_file_structure.py::test_directories_exist[contrib]",
+    "tests/lab1/test_file_structure.py::test_directories_exist[contrib/plugin]",
+    "tests/lab1/test_file_structure.py::test_files_exist[contrib/plugin/plugin.c]"],
+                        scope="session")
+def test_plugin_compilation(project_dir, plugin_bin_name):
+    """Test that the plugin compiles successfully."""
+    simple_clean(project_dir)
+    simple_make(project_dir)
+    check_file_exists(plugin_bin_name)
