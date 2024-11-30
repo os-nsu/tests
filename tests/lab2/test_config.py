@@ -6,15 +6,12 @@ from steps.proxy_steps import run_proxy, send_signal, build_and_run_proxy
 from steps.logger_steps import wait_for_log_message
 from entities.proxy import Proxy
 
-def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file_path):
-	empty_config = tmp_path / "empty.conf"
-	proxy = Proxy(config_path=empty_config)
+def test_proxy_with_empty_config(proxy_fixture):
+	proxy = proxy_fixture
+	proxy.config_path = proxy.tmp_path / "empty.conf"
 
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(empty_config)],
+	result = proxy.build_and_run_proxy(
+		args=["-c", str(proxy.config_path)],
 		wait_until_end=False
 	)
 
@@ -24,13 +21,9 @@ def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file
 	assert result.returncode == 0, "Proxy failed to start with an empty config"
 	assert "Using default configuration" in stdout, "Unexpected behavior with empty config"
 
-def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		wait_until_end=False
-	)
+def test_proxy_without_config(proxy_fixture):
+	proxy = proxy_fixture
+	result = proxy.build_and_run_proxy(wait_until_end=False)
 
 	result.wait()
 	stdout, stderr = result.communicate()
@@ -44,16 +37,13 @@ def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
 	'correct_option = "missing_quote', # missing quote
 	'correct_option "no_equals"',      # no "="
 ])
-def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config_content, log_file_path):
-	invalid_config = tmp_path / "invalid.conf"
-	proxy = Proxy(config_path=invalid_config)
+def test_proxy_with_invalid_config(proxy_fixture, config_content):
+	proxy = proxy_fixture
+	proxy.config_path = proxy.tmp_path / "invalid.conf"
 	proxy.update_config(config_content)
 
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(invalid_config)],
+	result = proxy.build_and_run_proxy(
+		args=["-c", str(proxy.config_path)],
 		wait_until_end=False
 	)
 
@@ -63,17 +53,14 @@ def test_proxy_with_invalid_config(project_dir, proxy_bin_name, tmp_path, config
 	assert result.returncode != 0, "Proxy should fail with invalid config"
 	assert "Config file error" in stderr, "Proxy did not report error for invalid config line ('{config_content}')"
 
-def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file_path):
-	large_config = tmp_path / "large.conf"
-	proxy = Proxy(config_path=large_config)
+def test_proxy_with_large_config(proxy_fixture):
+	proxy = proxy_fixture
+	proxy.config_path = proxy.tmp_path / "large.conf"
 
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
 	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(large_config)],
+		args=["-c", str(proxy.config_path)],
 		wait_until_end=False
 	)
 
@@ -84,13 +71,13 @@ def test_proxy_with_large_config(project_dir, proxy_bin_name, tmp_path, log_file
 	assert "Configuration loaded successfully" in stdout, "Proxy did not handle large config correctly"
 
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
-def test_proxy_reload_config(project_dir, proxy_bin_name, tmp_path, proxy_timeout, log_file_path):
-	config = tmp_path / "proxy.conf"
-	proxy = Proxy(config_path=config)
+def test_proxy_reload_config(proxy_fixture):
+	proxy = proxy_fixture
+	proxy.config_path = proxy.tmp_path / "proxy.conf"
 	proxy.update_config('option="initial_value"')
 
-	proc = run_proxy(project_dir, proxy_bin_name, args=["-c", str(config)], wait=False)
-	time.sleep(proxy_timeout)
+	proc = run_proxy(args=["-c", str(proxy.config_path)], wait_until_end=False)
+	time.sleep(proxy.proxy_timeout)
 
 	try:
 		proxy.update_config('option="new_value"')
@@ -99,13 +86,13 @@ def test_proxy_reload_config(project_dir, proxy_bin_name, tmp_path, proxy_timeou
 		assert proxy.has_config_changed(), "Config file modification time did not update after SIGHUP"
 
 		line_number, line_content = wait_for_log_message(
-			log_file_path=log_file_path,
+			log_file_path=proxy.log_file_path,
 			start_position=0,
 			message="Configuration reloaded",
-			timeout=proxy_timeout
+			timeout=proxy.proxy_timeout
 		)
 
 		assert "Configuration reloaded" in line_content, "Proxy did not reload config correctly after SIGHUP"
 	finally:
 		send_signal(proc, signal.SIGINT)
-		proc.wait(timeout=proxy_timeout)
+		proc.wait(timeout=proxy.proxy_timeout)

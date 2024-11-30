@@ -5,6 +5,7 @@ import subprocess
 import pytest
 import warnings
 
+from entities.proxy import Proxy
 from steps.proxy_steps import run_proxy
 from steps.test_steps import(
 	get_coredump_files,
@@ -169,3 +170,13 @@ def pytest_runtest_makereport(item, call):
 			report.longrepr.addsection("Proxy produced coredump(s)", item._segfault_details)
 		else:
 			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"
+
+@pytest.fixture
+def proxy_fixture(project_dir, proxy_bin_name, tmp_path, config_path, log_file_path, proxy_timeout):
+	proxy = Proxy(project_dir=project_dir,
+				  proxy_bin_name=proxy_bin_name,
+				  tmp_path=tmp_path,
+				  config_path=config_path,
+				  log_file_path=log_file_path,
+				  proxy_timeout=0)
+	return proxy
