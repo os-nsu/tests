@@ -21,9 +21,9 @@ def make(project_dir, make_args=[], extra_env={}):
 	env.setdefault("COPT", "")
 	env.setdefault("CFLAGS", "")
 
-	env["COPT"] = f"-Werror -Wall {env["COPT"]}"
-	env["CFLAGS"] = f"-Og -fno-omit-frame-pointer -ggdb3 {env["CFLAGS"]}"
-	env["CXXFLAGS"] = f"{env["CFLAGS"]} {env["COPT"]}"
+	env["COPT"] = f"-Werror -Wall {env['COPT']}"
+	env["CFLAGS"] = f"-Og -fno-omit-frame-pointer -ggdb3 {env['CFLAGS']}"
+	env["CXXFLAGS"] = f"{env['CFLAGS']} {env['COPT']}"
 
 	res = subprocess.run(["make"] + make_args, cwd=project_dir, env=env, check=False, capture_output=True)
 
