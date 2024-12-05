@@ -62,8 +62,11 @@ def proxy_bin_name(request, project_dir):
 	return os.path.abspath(f"{project_dir}/install/proxy")
 
 @pytest.fixture(scope="session")
-def log_file_path(project_dir):
-	config_path = os.path.join(project_dir, 'config.conf')
+def config_path(project_dir):
+	return os.path.join(project_dir, 'config.conf')
+
+@pytest.fixture(scope="session")
+def log_file_path(project_dir, config_path):
 	default_log_path = f"{project_dir}/logs/proxy.log"
 	if os.path.exists(config_path):
 		with open(config_path, 'r') as f:
@@ -172,11 +175,9 @@ def pytest_runtest_makereport(item, call):
 			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"
 
 @pytest.fixture
-def proxy_fixture(project_dir, proxy_bin_name, tmp_path, config_path, log_file_path, proxy_timeout):
+def proxy_fixture(project_dir, proxy_bin_name, config_path, proxy_timeout):
 	proxy = Proxy(project_dir=project_dir,
 				  proxy_bin_name=proxy_bin_name,
-				  tmp_path=tmp_path,
 				  config_path=config_path,
-				  log_file_path=log_file_path,
-				  proxy_timeout=0)
+				  proxy_timeout=proxy_timeout)
 	return proxy
