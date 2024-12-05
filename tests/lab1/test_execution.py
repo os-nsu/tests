@@ -114,7 +114,7 @@ def test_plugin_dlclose(project_dir, master_bin_name, proxy_timeout):
     )
     stdout = result.stdout
     stderr = result.stderr
-    assert "fini" in stderr or "fini" in stdout, "Динамический загрузчик не вывел сообщение о закрытии; плагин может быть не корректно закрыт."
+    assert "fini" in stderr or "fini" in stdout, "The dynamic loader did not output a shutdown message; the plugin might not have been closed properly."
 
 # -------------------------------------
 # Test something
