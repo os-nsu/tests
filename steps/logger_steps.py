@@ -14,25 +14,25 @@ def read_log_from_position(log_file_path, position):
         data = f.read()
         return data
 
-def wait_for_log_message(log_file_path, start_line_num, message, timeout=1):
+def wait_for_log_message(proxy,start_line_num, message,):
     """
     Waits for a message in the log file within the specified timeout.
     Returns a tuple (line_number, line_content) where the message was found.
     If the message is not found within the timeout, returns (None, "").
     """
-    end_time = time.time() + timeout
+    end_time = time.time() + proxy.timeout
     current_line_num = start_line_num
     line = ''
 
-    if not check_log_file_exists(log_file_path):
+    if not check_log_file_exists(proxy.log_file_path):
         while time.time() < end_time:
-            if check_log_file_exists(log_file_path):
+            if check_log_file_exists(proxy.log_file_path):
                 break
             time.sleep(0.1)
         else:
             return current_line_num, line
     try:
-        with open(log_file_path, 'r') as log_file:
+        with open(proxy.log_file_path, 'r') as log_file:
             for _ in range(start_line_num):
                 if log_file.readline() == '':
                     break
