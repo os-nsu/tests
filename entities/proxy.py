@@ -16,6 +16,7 @@ class Proxy:
 		if config_path and not os.path.exists(config_path):
 			self._create_default_config(config_path)
 		self._config_content = self._read_config() if config_path else ""
+
 	@property
 	def project_dir(self):
 		return self._project_dir
@@ -59,6 +60,12 @@ class Proxy:
 	@property
 	def last_modified_time(self):
 		return self._last_modified_time
+
+	@last_modified_time.setter
+	def last_modified_time(self, value):
+		if not isinstance (value, (int, float)) or value <= 0:
+			raise ValueError("last_modified_time must be a positive number")
+		self._proxy_timeout = value
 
 	def _create_default_config(self, config_path):
 		with open(config_path, 'w') as file:
@@ -127,6 +134,6 @@ class Proxy:
 		if log_file_path and os.path.exists(log_file_path):
 			os.remove(log_file_path)
 
-		result = self.run_proxy(self.project_dir, self.proxy_bin_name, args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end)
+		result = self.run_proxy(args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end)
 
 		return result

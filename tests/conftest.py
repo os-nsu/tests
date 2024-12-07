@@ -4,6 +4,7 @@ import os
 import subprocess
 import pytest
 import warnings
+import tempfile
 
 from entities.proxy import Proxy
 from steps.proxy_steps import run_proxy
@@ -60,10 +61,6 @@ def project_dir(request):
 @pytest.fixture(scope="session")
 def proxy_bin_name(request, project_dir):
 	return os.path.abspath(f"{project_dir}/install/proxy")
-
-@pytest.fixture(scope="session")
-def config_path(project_dir):
-	return os.path.join(project_dir, 'config.conf')
 
 @pytest.fixture(scope="session")
 def log_file_path(project_dir, config_path):
@@ -175,9 +172,8 @@ def pytest_runtest_makereport(item, call):
 			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"
 
 @pytest.fixture
-def proxy_fixture(project_dir, proxy_bin_name, config_path, proxy_timeout):
+def proxy_fixture(project_dir, proxy_bin_name, proxy_timeout):
 	proxy = Proxy(project_dir=project_dir,
 				  proxy_bin_name=proxy_bin_name,
-				  config_path=config_path,
 				  proxy_timeout=proxy_timeout)
 	return proxy
