@@ -76,6 +76,14 @@ def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
 
 @pytest.fixture(scope="session")
+def master_bin_name(project_dir):
+    return os.path.abspath(os.path.join(project_dir, "install", "proxy"))
+
+@pytest.fixture(scope="session")
+def plugin_bin_name(project_dir):
+    return os.path.abspath(os.path.join(project_dir, "install", "contrib", "plugin", "plugin.so"))
+
+@pytest.fixture(scope="session")
 def core_pattern():
 	"""Read  coredump pattern from coredump_pattern_file."""
 	return get_coredump_pattern()

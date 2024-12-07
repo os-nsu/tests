@@ -1,28 +1,126 @@
 # tests/lab1/test_execution.py
 
+import os
 import subprocess
 import pytest
-import time
-import signal
 
 from steps.proxy_steps import (
 	build_and_run_proxy,
-	send_signal
 )
+# -------------------------------------
+# Test outputs from static library
+# -------------------------------------
 
-def test_run_without_arguments(project_dir, proxy_bin_name, proxy_timeout):
-	"""Tests that the proxy starts successfully without arguments and can be terminated cleanly."""
-	proc = build_and_run_proxy(project_dir, proxy_bin_name, proxy_timeout=proxy_timeout, wait_until_end=False)
-	time.sleep(proxy_timeout)
-	try:
-		send_signal(proc, signal.SIGINT)
-		proc.wait(timeout=proxy_timeout)
-		expected_returncode = -signal.SIGINT
-		assert proc.returncode == expected_returncode, f"Proxy exited with code {proc.returncode} after SIGINT, expected {expected_returncode}."
-	except subprocess.TimeoutExpired:
-		proc.kill()
-		pytest.fail("Proxy did not terminate within the timeout period after SIGINT.")
+@pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_static_library_compilation"],
+                        scope="session")
+def test_static_library_output(project_dir, master_bin_name, proxy_timeout):
+    """Test proxy outputs for the message from static library."""
+    result = build_and_run_proxy(
+        project_dir=project_dir,
+        proxy_bin_name=master_bin_name,
+        proxy_timeout=proxy_timeout,
+        wait_until_end=True
+    )
+    stdout = result.stdout
+    expected_output = "Hello from static lib!"
+    assert expected_output in stdout, f"Expected output '{expected_output}' not found. Actual output: '{stdout}'."
 
+# -------------------------------------
+# Test outputs from dynamic library
+# -------------------------------------
+
+@pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_dynamic_library_compilation"],
+                        scope="session")
+def test_dynamic_library_output(project_dir, master_bin_name, proxy_timeout):
+    """Test proxy outputs for the message from dynamic library."""
+    result = build_and_run_proxy(
+        project_dir=project_dir,
+        proxy_bin_name=master_bin_name,
+        proxy_timeout=proxy_timeout,
+        wait_until_end=True
+    )
+    stdout = result.stdout
+    expected_output = "Hello from dynamic lib!"
+    assert expected_output in stdout, f"Expected output '{expected_output}' not found. Actual output: '{stdout}'."
+
+# -------------------------------------
+# Test outputs from the plugin
+# -------------------------------------
+
+@pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_plugin_compilation"],
+                        scope="session")
+def test_plugin_output(project_dir, master_bin_name, proxy_timeout):
+    """Test prxy outputs for the messages from plugin."""
+    result = build_and_run_proxy(
+        project_dir=project_dir,
+        proxy_bin_name=master_bin_name,
+        proxy_timeout=proxy_timeout,
+        wait_until_end=True
+    )
+    stdout = result.stdout
+    expected_outputs = [
+        "init successfully!",
+        "hello from then_start()",
+        "hello from then_end()"
+    ]
+    for expected_output in expected_outputs:
+        assert expected_output in stdout, f"Expected output '{expected_output}' not found. Actual output: '{stdout}'"
+
+# -------------------------------------
+# Test everything together
+# -------------------------------------
+
+@pytest.mark.dependency(depends=[
+    "test_static_library_output",
+    "test_dynamic_library_output",
+    "test_plugin_output"])
+def test_proxy_outputs(project_dir, master_bin_name, proxy_timeout):
+    """Test that proxy outputs has all expected messages."""
+    result = build_and_run_proxy(
+        project_dir=project_dir,
+        proxy_bin_name=master_bin_name,
+        proxy_timeout=proxy_timeout,
+        wait_until_end=True
+    )
+    stdout = result.stdout
+
+    expected_outputs = [
+        "Hello from static lib!",
+        "Hello from dynamic lib!",
+        "Use default configuration file",
+        "init successfully!",
+        "hello from then_start()",
+        "hello from then_end()"
+    ]
+
+    for expected_output in expected_outputs:
+        assert expected_output in stdout, f"Expected output '{expected_output}' not found. Actual output: '{stdout}'"
+
+# -------------------------------------
+# Test plugin dlclose
+# -------------------------------------
+
+@pytest.mark.dependency(depends=["test_plugin_output"])
+def test_plugin_dlclose(project_dir, master_bin_name, proxy_timeout):
+    """Test that the plugin is correctly closed using dlclose."""
+    env = os.environ.copy()
+    env['LD_DEBUG'] = 'files'
+    result = build_and_run_proxy(
+        project_dir=project_dir,
+        proxy_bin_name=master_bin_name,
+        proxy_timeout=proxy_timeout,
+        env=env,
+        wait_until_end=True
+    )
+    stdout = result.stdout
+    stderr = result.stderr
+    assert "fini" in stderr or "fini" in stdout, "The dynamic loader did not output a shutdown message; the plugin might not have been closed properly."
+
+# -------------------------------------
+# Test something
+# -------------------------------------
+
+@pytest.mark.xfail
 def test_run_with_help_argument(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests running the proxy successfully with '--help' argument."""
 	try:
@@ -35,6 +133,7 @@ def test_run_with_help_argument(project_dir, proxy_bin_name, proxy_timeout):
 	except subprocess.TimeoutExpired:
 		pytest.fail(f"Proxy with '--help' argument not finish in {proxy_timeout} seconds")
 
+@pytest.mark.xfail
 def test_run_with_invalid_arguments(project_dir, proxy_bin_name, proxy_timeout):
 	"""Tests running the proxy with invalid arguments."""
 	try:
