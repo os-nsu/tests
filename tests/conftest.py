@@ -7,7 +7,6 @@ import warnings
 import tempfile
 
 from entities.proxy import Proxy
-from steps.proxy_steps import run_proxy
 from steps.test_steps import(
 	get_coredump_files,
 	check_for_coredump_difference,

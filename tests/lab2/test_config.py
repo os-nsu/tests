@@ -3,7 +3,7 @@ import time
 import signal
 import os
 
-from steps.proxy_steps import run_proxy, send_signal, build_and_run_proxy
+from steps.proxy_steps import run_proxy, send_signal
 from steps.logger_steps import wait_for_log_message
 
 def test_proxy_with_empty_config(proxy_fixture, tmp_path):
@@ -34,8 +34,10 @@ def test_proxy_without_config(proxy_fixture):
 ])
 def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 	proxy = proxy_fixture
+	print(proxy.config_path)
 	invalid_path = os.path.join(tmp_path, "invalid.conf")
 	proxy.config_path = invalid_path
+	print(proxy.config_path)
 	if not os.path.exists(proxy.config_path):
 		with open(proxy.config_path, 'w') as f:
 			f.write('')
@@ -68,14 +70,14 @@ def test_proxy_with_large_config(proxy_fixture, tmp_path):
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
 def test_proxy_reload_config(proxy_fixture, tmp_path):
 	proxy = proxy_fixture
-	proxy_path = os.path.join(tmp_path, "proxy.conf")
+	proxy_path = os.path.join(tmp_path, "reload.conf")
 	proxy.config_path = proxy_path
 	if not os.path.exists(proxy.config_path):
 		with open(proxy.config_path, 'w') as f:
 			f.write('')
 	proxy.update_config('option="initial_value"')
 
-	proc = run_proxy(args=["-c", str(proxy.config_path)], wait_until_end=False)
+	proc = proxy.build_and_run_proxy(args=["-c", str(proxy.config_path)], wait_until_end=True)
 	time.sleep(proxy.proxy_timeout)
 
 	try:

@@ -88,13 +88,11 @@ class Proxy:
 	def update_config(self, new_content):
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
-		self.config_content = new_content
-		self.last_modified_time = self._get_last_modified_time()
+		time.sleep(0.1)
+#		self.last_modified_time = self._get_last_modified_time()
+		time.sleep(0.1)
 
-	def get_config_content(self):
-		return self.config_content
-
-	def run_proxy(self,args=[], timeout=None, env=None, wait_until_end=True):
+	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True):
 		"""
 		Runs the proxy with specified arguments.
 
