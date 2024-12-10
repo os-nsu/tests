@@ -4,8 +4,9 @@ import os
 import subprocess
 import pytest
 import warnings
+import tempfile
 
-from steps.proxy_steps import run_proxy
+from entities.proxy import Proxy
 from steps.test_steps import(
 	get_coredump_files,
 	check_for_coredump_difference,
@@ -61,8 +62,7 @@ def proxy_bin_name(request, project_dir):
 	return os.path.abspath(f"{project_dir}/install/proxy")
 
 @pytest.fixture(scope="session")
-def log_file_path(project_dir):
-	config_path = os.path.join(project_dir, 'config.conf')
+def log_file_path(project_dir, config_path):
 	default_log_path = f"{project_dir}/logs/proxy.log"
 	if os.path.exists(config_path):
 		with open(config_path, 'r') as f:
@@ -169,3 +169,10 @@ def pytest_runtest_makereport(item, call):
 			report.longrepr.addsection("Proxy produced coredump(s)", item._segfault_details)
 		else:
 			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"
+
+@pytest.fixture
+def proxy_fixture(project_dir, proxy_bin_name, proxy_timeout):
+	proxy = Proxy(project_dir=project_dir,
+				  proxy_bin_name=proxy_bin_name,
+				  proxy_timeout=proxy_timeout)
+	return proxy
