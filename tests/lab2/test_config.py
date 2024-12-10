@@ -3,7 +3,7 @@ import time
 import signal
 import os
 
-from steps.proxy_steps import run_proxy, send_signal
+from steps.proxy_steps import send_signal
 from steps.logger_steps import wait_for_log_message
 
 def test_proxy_with_empty_config(proxy_fixture, tmp_path):
