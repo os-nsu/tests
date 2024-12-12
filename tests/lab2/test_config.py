@@ -6,7 +6,7 @@ import os
 from steps.proxy_steps import send_signal
 from steps.logger_steps import wait_for_log_message
 
-def test_proxy_with_empty_config(proxy_fixture, tmp_path):
+def test_proxy_with_empty_config(proxy_fixture):
 	proxy = proxy_fixture
 	with open(proxy.config_path, 'w') as f:
 		f.write('')

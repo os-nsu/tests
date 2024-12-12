@@ -1,22 +1,24 @@
 import subprocess
-import time
 import os
 import pytest
 import subprocess
 from steps.build_steps import simple_clean, make
 
 class Proxy:
-	def __init__(self, project_dir=None, proxy_bin_name=None, log_file_path=None, proxy_timeout=0):
+	def __init__(self, project_dir=None, proxy_bin_name=None, config_path=None, log_file_path=None, proxy_timeout=0):
 		self._project_dir = project_dir
 		self._proxy_bin_name = proxy_bin_name
-		self._config_path = os.path.join(project_dir, "config.conf")
 		self._log_file_path = log_file_path
 		self._proxy_timeout = proxy_timeout
+		self._config_path = os.path.join(project_dir, "config.conf") if project_dir else None
+
+		# Создаем файл конфигурации, если он указан
+		if self._config_path:
+			self._create_default_config(self._config_path)
+			self._config_content = self._read_config()
+
 		self._last_modified_time = self._get_last_modified_time()
 
-		if self.config_path and not os.path.exists(self.config_path):
-			self._create_default_config(self.config_path)
-		self._config_content = self._read_config() if self.config_path else ""
 
 	@property
 	def project_dir(self):
@@ -47,6 +49,16 @@ class Proxy:
 		if not isinstance(value, str) or not value:
 			raise ValueError("config_path must be a non-empty string")
 		self._config_path = value
+
+	@property
+	def log_file_path(self):
+		return self._log_file_path
+
+	@log_file_path.setter
+	def log_file_path(self, value):
+		if not isinstance(value, str) or not value:
+			raise ValueError("log_file_path must be a non-empty string")
+		self._log_file_path = value
 
 	@property
 	def proxy_timeout(self):
@@ -89,9 +101,7 @@ class Proxy:
 	def update_config(self, new_content):
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
-		time.sleep(0.1)
 #		self.last_modified_time = self._get_last_modified_time()
-		time.sleep(0.1)
 
 	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True):
 		"""
