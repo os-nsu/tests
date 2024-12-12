@@ -22,9 +22,22 @@ def test_execution_with_sanitizers(proxy_fixture, sanitizer):
 	extra_env["ASAN_OPTIONS"] = f"{extra_env['SANITIZER_OPTIONS']}:detect_stack_use_after_return=0:check_initialization_order=1:strict_init_order=1"
 	extra_env["UBSAN_OPTIONS"] = f"{extra_env['SANITIZER_OPTIONS']}"
 
+<<<<<<< HEAD
 	proxy = proxy_fixture
 	proc = proxy.build_and_run_proxy(extra_env=extra_env, wait_until_end=False)
 	time.sleep(proxy.proxy_timeout)
+=======
+	proc = build_and_run_proxy(
+    project_dir=project_dir,
+    proxy_bin_name=proxy_bin_name,
+    extra_env=extra_env,
+    wait_until_end=False,
+    check=False
+    )
+
+	time.sleep(proxy_timeout)
+
+>>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
 	try:
 		send_signal(proc, signal.SIGINT)
 		proc.wait(timeout=proxy.proxy_timeout)
