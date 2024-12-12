@@ -5,17 +5,18 @@ import subprocess
 from steps.build_steps import simple_clean, make
 
 class Proxy:
-	def __init__(self, project_dir=None, proxy_bin_name=None, config_path=None, log_file_path=None, proxy_timeout=0):
+	def __init__(self, project_dir=None, proxy_bin_name=None, proxy_timeout=0):
 		self._project_dir = project_dir
 		self._proxy_bin_name = proxy_bin_name
-		self._log_file_path = log_file_path
+		self._log_file_path = os.path.join(project_dir, "logs/proxy.log") if project_dir else None
 		self._proxy_timeout = proxy_timeout
 		self._config_path = os.path.join(project_dir, "config.conf") if project_dir else None
 
-		# Создаем файл конфигурации, если он указан
 		if self._config_path:
 			self._create_default_config(self._config_path)
 			self._config_content = self._read_config()
+		if self._log_file_path:
+			self._create_default_log_file(self._log_file_path)
 
 		self._last_modified_time = self._get_last_modified_time()
 
@@ -84,6 +85,13 @@ class Proxy:
 		with open(config_path, 'w') as file:
 			file.write("")
 
+	def _create_default_log_file(self, log_file_path):
+		log_dir = os.path.dirname(log_file_path)
+		if not os.path.exists(log_dir):
+			os.makedirs(log_dir)
+		with open(log_file_path, 'w') as file:
+			file.write("")
+
 	def _read_config(self):
 		with open(self.config_path, "r") as f:
 			return f.read()
@@ -101,7 +109,6 @@ class Proxy:
 	def update_config(self, new_content):
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
-#		self.last_modified_time = self._get_last_modified_time()
 
 	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True):
 		"""
