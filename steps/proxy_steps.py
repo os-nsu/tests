@@ -58,7 +58,7 @@ def build_and_run_proxy(project_dir, proxy_bin_name, log_file_path=None, proxy_t
         If wait=False, returns the Popen object.
     """
     simple_clean(project_dir)
-    make(project_dir, make_args, extra_env, check=check)
+    make(project_dir=project_dir, make_args=make_args, extra_env=extra_env, check=check)
 
     if log_file_path and os.path.exists(log_file_path):
         os.remove(log_file_path)
