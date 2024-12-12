@@ -6,16 +6,17 @@ import subprocess
 from steps.build_steps import simple_clean, make
 
 class Proxy:
-	def __init__(self, project_dir=None, proxy_bin_name=None, config_path=None, proxy_timeout=0):
+	def __init__(self, project_dir=None, proxy_bin_name=None, log_file_path=None, proxy_timeout=0):
 		self._project_dir = project_dir
 		self._proxy_bin_name = proxy_bin_name
-		self._config_path = config_path
+		self._config_path = os.path.join(project_dir, "config.conf")
+		self._log_file_path = log_file_path
 		self._proxy_timeout = proxy_timeout
 		self._last_modified_time = self._get_last_modified_time()
 
-		if config_path and not os.path.exists(config_path):
-			self._create_default_config(config_path)
-		self._config_content = self._read_config() if config_path else ""
+		if self.config_path and not os.path.exists(self.config_path):
+			self._create_default_config(self.config_path)
+		self._config_content = self._read_config() if self.config_path else ""
 
 	@property
 	def project_dir(self):
@@ -111,7 +112,7 @@ class Proxy:
 		except Exception as e:
 			pytest.fail(f"Can't start proxy with args {args}, {e}")
 
-	def build_and_run_proxy(self, log_file_path=None, args=[], make_args=[], extra_env={}, make_env=None, wait_until_end=True):
+	def build_and_run_proxy(self, args=[], make_args=[], extra_env={}, make_env=None, wait_until_end=True):
 		"""
 		Builds the proxy and runs it with specified arguments.
 
@@ -129,8 +130,8 @@ class Proxy:
 		simple_clean(self.project_dir)
 		make(self.project_dir, make_args, extra_env)
 
-		if log_file_path and os.path.exists(log_file_path):
-			os.remove(log_file_path)
+		if self.log_file_path and os.path.exists(self.log_file_path):
+			os.remove(self.log_file_path)
 
 		result = self.run_proxy(args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end)
 

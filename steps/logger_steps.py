@@ -3,13 +3,13 @@
 import os
 import time
 
-def check_log_file_exists(log_file_path):
+def check_log_file_exists(proxy):
     """Check for existing log file."""
-    return os.path.exists(log_file_path)
+    return os.path.exists(proxy.log_file_path)
 
-def read_log_from_position(log_file_path, position):
+def read_log_from_position(proxy, position):
     """Read log file from given position"""
-    with open(log_file_path, 'r') as f:
+    with open(proxy.log_file_path, 'r') as f:
         f.seek(position)
         data = f.read()
         return data
@@ -20,13 +20,13 @@ def wait_for_log_message(proxy,start_line_num, message,):
     Returns a tuple (line_number, line_content) where the message was found.
     If the message is not found within the timeout, returns (None, "").
     """
-    end_time = time.time() + proxy.timeout
+    end_time = time.time() + proxy.proxy_timeout
     current_line_num = start_line_num
     line = ''
 
-    if not check_log_file_exists(proxy.log_file_path):
+    if not check_log_file_exists(proxy):
         while time.time() < end_time:
-            if check_log_file_exists(proxy.log_file_path):
+            if check_log_file_exists(proxy):
                 break
             time.sleep(0.1)
         else:
@@ -48,7 +48,7 @@ def wait_for_log_message(proxy,start_line_num, message,):
         return current_line_num, line
     return current_line_num, line
 
-def clean_log_file(log_file_path):
+def clean_log_file(proxy):
     """Remove existing log_file"""
-    if os.path.exists(log_file_path):
-        os.remove(log_file_path)
+    if os.path.exists(proxy.log_file_path):
+        os.remove(proxy.log_file_path)

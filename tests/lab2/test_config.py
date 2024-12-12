@@ -8,11 +8,8 @@ from steps.logger_steps import wait_for_log_message
 
 def test_proxy_with_empty_config(proxy_fixture, tmp_path):
 	proxy = proxy_fixture
-	empty_path = os.path.join(tmp_path, "empty.conf")
-	proxy.config_path = empty_path
-	if not os.path.exists(proxy.config_path):
-		with open(proxy.config_path, 'w') as f:
-			f.write('')
+	with open(proxy.config_path, 'w') as f:
+		f.write('')
 	result = proxy.build_and_run_proxy(
 		args=["-c", str(proxy.config_path)],
 		wait_until_end=True
@@ -34,12 +31,7 @@ def test_proxy_without_config(proxy_fixture):
 ])
 def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 	proxy = proxy_fixture
-	print(proxy.config_path)
-	invalid_path = os.path.join(tmp_path, "invalid.conf")
-	proxy.config_path = invalid_path
-	print(proxy.config_path)
-	if not os.path.exists(proxy.config_path):
-		with open(proxy.config_path, 'w') as f:
+	with open(proxy.config_path, 'w') as f:
 			f.write('')
 	proxy.update_config(config_content)
 
@@ -52,11 +44,8 @@ def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 
 def test_proxy_with_large_config(proxy_fixture, tmp_path):
 	proxy = proxy_fixture
-	large_path = os.path.join(tmp_path, "large.conf")
-	proxy.config_path = large_path
-	if not os.path.exists(proxy.config_path):
-		with open(proxy.config_path, 'w') as f:
-			f.write('')
+	with open(proxy.config_path, 'w') as f:
+		f.write('')
 
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
@@ -70,11 +59,8 @@ def test_proxy_with_large_config(proxy_fixture, tmp_path):
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
 def test_proxy_reload_config(proxy_fixture, tmp_path):
 	proxy = proxy_fixture
-	proxy_path = os.path.join(tmp_path, "reload.conf")
-	proxy.config_path = proxy_path
-	if not os.path.exists(proxy.config_path):
-		with open(proxy.config_path, 'w') as f:
-			f.write('')
+	with open(proxy.config_path, 'w') as f:
+		f.write('')
 	proxy.update_config('option="initial_value"')
 
 	proc = proxy.build_and_run_proxy(args=["-c", str(proxy.config_path)], wait_until_end=True)
