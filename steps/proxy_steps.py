@@ -6,6 +6,7 @@ import time
 import pytest
 
 from steps.build_steps import simple_clean, make
+from steps.utils import run_command, start_command
 
 
 def run_proxy(project_dir, proxy_bin_name, args=[], timeout=None, env=None, wait_until_end=True):
@@ -16,11 +17,12 @@ def run_proxy(project_dir, proxy_bin_name, args=[], timeout=None, env=None, wait
     If wait is False, starts the process and returns the Popen object.
     """
     try:
+        cmd = [proxy_bin_name] + args
         if wait_until_end:
-            result = subprocess.run([proxy_bin_name] + args, cwd=project_dir, check=False, capture_output=True, text=True, timeout=timeout, env=env)
+            result = run_command(cmd, cwd=project_dir, env=env, timeout=timeout, check=False)
             return result
         else:
-            proc = subprocess.Popen([proxy_bin_name] + args, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+            proc = start_command(cmd, cwd=project_dir, env=env, text=True)
             return proc
     except subprocess.TimeoutExpired:
         pytest.fail(f"Proxy not finished in {timeout} seconds.")
