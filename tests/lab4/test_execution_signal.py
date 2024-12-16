@@ -14,21 +14,9 @@ from steps.proxy_steps import send_signal
 ])
 def test_proxy_termination_on_signal(proxy_fixture, sig, signal_name):
 	"""Tests that the proxy correctly terminates upon receiving specific signals."""
-<<<<<<< HEAD
 	proxy = proxy_fixture
-	proc = proxy.build_and_run_proxy(wait_until_end=False)
+	proc = proxy.build_and_run_proxy(wait_until_end=False, check=False)
 	time.sleep(proxy.proxy_timeout)
-=======
-	proc = build_and_run_proxy(
-    project_dir=project_dir,
-    proxy_bin_name=proxy_bin_name,
-    log_file_path=log_file_path,
-    proxy_timeout=proxy_timeout,
-    wait_until_end=False,
-    check=False)
-
-	time.sleep(proxy_timeout)
->>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
 	try:
 		send_signal(proc, sig)
 		proc.wait(timeout=proxy.proxy_timeout)

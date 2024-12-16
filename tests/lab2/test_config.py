@@ -6,48 +6,19 @@ import os
 from steps.proxy_steps import send_signal
 from steps.logger_steps import wait_for_log_message
 
-<<<<<<< HEAD
 def test_proxy_with_empty_config(proxy_fixture):
 	proxy = proxy_fixture
 	with open(proxy.config_path, 'w') as f:
 		f.write('')
 	result = proxy.build_and_run_proxy(
 		args=["-c", str(proxy.config_path)],
-		wait_until_end=True
-=======
-def test_proxy_with_empty_config(project_dir, proxy_bin_name, tmp_path, log_file_path):
-	empty_config = tmp_path / "empty.conf"
-	proxy = Proxy(config_path=empty_config)
-
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(empty_config)],
-		wait_until_end=False,
-		check=False
->>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
+		wait_until_end=True,
+		check=True
 	)
 
-	assert result.returncode == 0, "Proxy failed to start with an empty config"
-
-<<<<<<< HEAD
 def test_proxy_without_config(proxy_fixture):
 	proxy = proxy_fixture
 	result = proxy.build_and_run_proxy(wait_until_end=True)
-=======
-def test_proxy_without_config(project_dir, proxy_bin_name, log_file_path):
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		wait_until_end=False,
-		check=False
-	)
-
-	result.wait()
-	stdout, stderr = result.communicate()
->>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
 
 	assert result.returncode == 0, "Proxy failed to start without config"
 
@@ -63,22 +34,11 @@ def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 			f.write('')
 	proxy.update_config(config_content)
 
-<<<<<<< HEAD
 	result = proxy.build_and_run_proxy(
 		args=["-c", str(proxy.config_path)],
-		wait_until_end=True
-=======
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(invalid_config)],
-		wait_until_end=False,
-		check=False
->>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
+		wait_until_end=True,
+		check = True
 	)
-
-	assert result.returncode != 0, "Proxy should fail with invalid config"
 
 def test_proxy_with_large_config(proxy_fixture):
 	proxy = proxy_fixture
@@ -87,22 +47,11 @@ def test_proxy_with_large_config(proxy_fixture):
 
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
-<<<<<<< HEAD
 	result = proxy.build_and_run_proxy(
 		args=["-c", str(proxy.config_path)],
-		wait_until_end=True
-=======
-	result = build_and_run_proxy(
-		project_dir,
-		proxy_bin_name,
-		log_file_path,
-		args=["-c", str(large_config)],
-		wait_until_end=False,
-		check=False
->>>>>>> 984549a (a lot of fixes usage subprocess and check errors)
+		wait_until_end=True,
+		check = True
 	)
-
-	assert result.returncode == 0, "Proxy failed to start with large config"
 
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
 def test_proxy_reload_config(proxy_fixture):

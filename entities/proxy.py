@@ -3,6 +3,7 @@ import os
 import pytest
 import subprocess
 from steps.build_steps import simple_clean, make
+from steps.utils import run_command, start_command
 
 class Proxy:
 	def __init__(self, project_dir=None, proxy_bin_name=None, proxy_timeout=0):
@@ -110,26 +111,22 @@ class Proxy:
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
 
-	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True):
+	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True, check=True):
 		"""
 		Runs the proxy with specified arguments.
 
 		If wait is True, waits for the process to complete and returns the CompletedProcess object.
 		If wait is False, starts the process and returns the Popen object.
 		"""
-		try:
-			if wait_until_end:
-				result = subprocess.run([self.proxy_bin_name] + args, cwd=self.project_dir, check=False, capture_output=True, text=True, timeout=timeout, env=env)
-				return result
-			else:
-				proc = subprocess.Popen([self.proxy_bin_name] + args, cwd=self.project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
-				return proc
-		except subprocess.TimeoutExpired:
-			pytest.fail(f"Proxy not finished in {timeout} seconds.")
-		except Exception as e:
-			pytest.fail(f"Can't start proxy with args {args}, {e}")
+		cmd = [self.proxy_bin_name] + args
+		if wait_until_end:
+			result = run_command(cmd, cwd=self.project_dir, env=env, timeout=timeout, check=check)
+			return result
+		else:
+			proc = start_command(cmd, cwd=self.project_dir, env=env, text=True)
+			return proc
 
-	def build_and_run_proxy(self, args=[], make_args=[], extra_env={}, make_env=None, wait_until_end=True):
+	def build_and_run_proxy(self, args=[], make_args=[], extra_env={}, make_env=None, wait_until_end=True, check = True):
 		"""
 		Builds the proxy and runs it with specified arguments.
 
@@ -150,6 +147,6 @@ class Proxy:
 		if self.log_file_path and os.path.exists(self.log_file_path):
 			os.remove(self.log_file_path)
 
-		result = self.run_proxy(args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end)
+		result = self.run_proxy(args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end, check = check)
 
 		return result
