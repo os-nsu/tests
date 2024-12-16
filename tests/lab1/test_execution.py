@@ -110,7 +110,7 @@ def test_run_with_help_argument(proxy_fixture):
 	"""Tests running the proxy successfully with '--help' argument."""
 	proxy = proxy_fixture
 
-	result = proxy.build_and_run_proxy(args=['--help'], wait_until_end=True, check = True)
+	result = proxy.build_and_run_proxy(proxy_args=['--help'], wait_until_end=True, check = True)
 
 	assert  result.stdout != "", "Expected usage information in output."
 
@@ -119,6 +119,6 @@ def test_run_with_invalid_arguments(proxy_fixture):
 	"""Tests running the proxy with invalid arguments."""
 	proxy = proxy_fixture
 
-	result = proxy.build_and_run_proxy(args=['--invalid_arg'], wait_until_end=True, check = True)
+	result = proxy.build_and_run_proxy(proxy_args=['--invalid_arg'], wait_until_end=True, check = True)
 
 	assert "Invalid argument" in result.stderr or "unrecognized option" in result.stderr, "Expected error message for invalid argument."

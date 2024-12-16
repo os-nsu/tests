@@ -111,7 +111,7 @@ class Proxy:
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
 
-	def run_proxy(self, args=[], timeout=None, env=None, wait_until_end=True, check=True):
+	def run_proxy(self, args=[], env=None, timeout=None, wait_until_end=True, check=True):
 		"""
 		Runs the proxy with specified arguments.
 

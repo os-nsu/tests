@@ -8,8 +8,7 @@ def simple_make(project_dir):
 	return make(project_dir)
 
 def simple_clean(project_dir):
-	res = run_command(["make", "clean"], cwd=project_dir)
-	assert res.returncode == 0, "make clean finished with no-zero return code"
+	res = run_command(args=["make", "clean"], cwd=project_dir, check=True)
 	assert len(res.stderr) == 0, f"make clean has stderr '{res.stderr}'"
 	return res
 
