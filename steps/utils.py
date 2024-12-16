@@ -61,7 +61,7 @@ def get_caller_function_name():
     if it cannot be determined, return the name of this function.
     """
     stack = inspect.stack()
-    if len(stack) > 1:
-        return stack[1].function
+    if len(stack) > 2:
+        return stack[2].function
 
     return "unknown"
