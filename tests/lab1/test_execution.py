@@ -94,8 +94,9 @@ def test_plugin_dlclose(proxy_fixture):
 	env['LD_DEBUG'] = 'files'
 	proxy = proxy_fixture
 
-	result = proxy.build_and_run_proxy(proxy_env=env, wait_until_end=True, check=True)
+	result = proxy.build_and_run_proxy(proxy_env=env, wait_until_end=True, check=False)
 
+	assert result.returncode == 0, f"Proxy finish with code {result.returncode} after SIGINT, expected {0}."
 	stdout = result.stdout
 	stderr = result.stderr
 

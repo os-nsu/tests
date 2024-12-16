@@ -9,7 +9,6 @@ def simple_make(project_dir):
 
 def simple_clean(project_dir):
 	res = run_command(args=["make", "clean"], cwd=project_dir, check=True)
-	assert len(res.stderr) == 0, f"make clean has stderr '{res.stderr}'"
 	return res
 
 def make(project_dir, make_args=[], extra_env={}, check=True):
@@ -25,8 +24,5 @@ def make(project_dir, make_args=[], extra_env={}, check=True):
 	env["CXXFLAGS"] = f"{env['CFLAGS']} {env['COPT']}"
 
 	res = run_command(["make"] + make_args, cwd=project_dir, env=env, check=check)
-
-	if check:
-		assert len(res.stderr) == 0, f"make output has stderr '{res.stderr}'"
 
 	return res

@@ -126,16 +126,17 @@ class Proxy:
 			proc = start_command(cmd, cwd=self.project_dir, env=env, text=True)
 			return proc
 
-	def build_and_run_proxy(self, proxy_args=[], proxy_env=None, make_args=[], make_env={}, wait_until_end=True, check = True):
+	def build_and_run_proxy(self, proxy_args=[], proxy_env=None, make_args=[], make_env={}, wait_until_end=True, check=True):
 		"""
 		Builds the proxy and runs it with specified arguments.
 
 		Parameters:
-			args: Arguments to pass to run proxy .
+			proxy_args: Arguments to pass to run proxy .
    			proxy_env: Environment variables to run proxy.
 			make_args: Arguments to pass to make proxy.
 			make_env: Extra environment variables to make proxy.
 			wait_until_end: If True, waits for the proxy to finish.
+			check: If True, check for common errors
 
 		Returns:
 			If wait_until_end=True, returns the CompletedProcess object.

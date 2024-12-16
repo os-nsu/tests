@@ -18,10 +18,10 @@ def run_command(args, cwd=None, env=None, timeout=None, check=True, shell=False)
     try:
         res = subprocess.run(args, cwd=cwd, env=env, check=False, capture_output=True, text=True, timeout=timeout, shell=shell)
     except subprocess.TimeoutExpired:
-        print(f"Command timed out after {timeout} seconds: {' '.join(args)}")
+        print(f"{marker} Command timed out after {timeout} seconds: {' '.join(args)}")
         pytest.fail(f"Proxy not finished in {timeout} seconds.")
     except Exception as e:
-        print(f"Failed to run command: {' '.join(args)}; Error: {e}")
+        print(f"{marker} Failed to run command: {' '.join(args)}; Error: {e}")
         pytest.fail(f"Can't start command {' '.join(args)}: {e}")
 
     if res.stdout:
@@ -31,8 +31,12 @@ def run_command(args, cwd=None, env=None, timeout=None, check=True, shell=False)
 
 
     if check and res.returncode != 0:
-        print(f"Command failed with return code {res.returncode}: {' '.join(args)}")
-        pytest.fail(f"Command {' '.join(args)} finished with non-zero return code {res.returncode}.\nStderr: {res.stderr}")
+        print(f"{marker} Command failed with return code {res.returncode}: {' '.join(args)}")
+        pytest.fail(f"Command {' '.join(args)} finished with non-zero return code {res.returncode}.\n")
+
+    if check and len(res.stderr) != 0:
+        print(f"{marker} Command has stderr.")
+        pytest.fail(f"Command has stderr.\n")
 
     return res
 

@@ -45,7 +45,7 @@ def test_log_messages_in_order(proxy_fixture):
 	messages = ["Logger initialized", "Main loop started"]
 	start_position = 0
 
-	proc = proxy.build_and_run_proxy(wait_until_end=True, check = True)
+	proc = proxy.build_and_run_proxy(wait_until_end=True, check=True)
 
 	try:
 		for message in messages:

@@ -35,8 +35,9 @@ def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 	result = proxy.build_and_run_proxy(
 		proxy_args=["-c", str(proxy.config_path)],
 		wait_until_end=True,
-		check = True
+		check=False
 	)
+	assert result.returncode != 0, "Proxy should fail with invalid config"
 
 def test_proxy_with_large_config(proxy_fixture):
 	proxy = proxy_fixture
@@ -48,7 +49,7 @@ def test_proxy_with_large_config(proxy_fixture):
 	result = proxy.build_and_run_proxy(
 		proxy_args=["-c", str(proxy.config_path)],
 		wait_until_end=True,
-		check = True
+		check=True
 	)
 
 @pytest.mark.xfail(reason="SIGHUP handling not yet implemented")
