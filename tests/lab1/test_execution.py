@@ -94,7 +94,7 @@ def test_plugin_dlclose(proxy_fixture):
 	env['LD_DEBUG'] = 'files'
 	proxy = proxy_fixture
 
-	result = proxy.build_and_run_proxy(extra_env=env, wait_until_end=True, check=True)
+	result = proxy.build_and_run_proxy(proxy_env=env, wait_until_end=True, check=True)
 
 	stdout = result.stdout
 	stderr = result.stderr

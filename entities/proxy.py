@@ -126,15 +126,15 @@ class Proxy:
 			proc = start_command(cmd, cwd=self.project_dir, env=env, text=True)
 			return proc
 
-	def build_and_run_proxy(self, args=[], make_args=[], extra_env={}, make_env=None, wait_until_end=True, check = True):
+	def build_and_run_proxy(self, proxy_args=[], proxy_env=None, make_args=[], make_env={}, wait_until_end=True, check = True):
 		"""
 		Builds the proxy and runs it with specified arguments.
 
 		Parameters:
 			args: Arguments to pass to run proxy .
+   			proxy_env: Environment variables to run proxy.
 			make_args: Arguments to pass to make proxy.
-			extra_env: Extra environment variables to make proxy.
-			env: Environment variables to run proxy.
+			make_env: Extra environment variables to make proxy.
 			wait_until_end: If True, waits for the proxy to finish.
 
 		Returns:
@@ -142,11 +142,11 @@ class Proxy:
 			If wait_until_end=False, returns the Popen object.
 		"""
 		simple_clean(self.project_dir)
-		make(self.project_dir, make_args, extra_env)
+		make(self.project_dir, make_args, make_env, check=check)
 
 		if self.log_file_path and os.path.exists(self.log_file_path):
 			os.remove(self.log_file_path)
 
-		result = self.run_proxy(args=args, env=make_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end, check = check)
+		result = self.run_proxy(args=proxy_args, env=proxy_env, timeout=self.proxy_timeout if wait_until_end else None, wait_until_end=wait_until_end, check = check)
 
 		return result

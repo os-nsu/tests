@@ -11,16 +11,14 @@ def test_proxy_with_empty_config(proxy_fixture):
 	with open(proxy.config_path, 'w') as f:
 		f.write('')
 	result = proxy.build_and_run_proxy(
-		args=["-c", str(proxy.config_path)],
+		proxy_args=["-c", str(proxy.config_path)],
 		wait_until_end=True,
 		check=True
 	)
 
 def test_proxy_without_config(proxy_fixture):
 	proxy = proxy_fixture
-	result = proxy.build_and_run_proxy(wait_until_end=True)
-
-	assert result.returncode == 0, "Proxy failed to start without config"
+	result = proxy.build_and_run_proxy(wait_until_end=True, check=True)
 
 @pytest.mark.parametrize("config_content", [
 	'option_without_equals',           # without "="
@@ -35,7 +33,7 @@ def test_proxy_with_invalid_config(proxy_fixture, config_content, tmp_path):
 	proxy.update_config(config_content)
 
 	result = proxy.build_and_run_proxy(
-		args=["-c", str(proxy.config_path)],
+		proxy_args=["-c", str(proxy.config_path)],
 		wait_until_end=True,
 		check = True
 	)
@@ -48,7 +46,7 @@ def test_proxy_with_large_config(proxy_fixture):
 	proxy.update_config("\n" * (10 * 1024 * 1024) + 'log_capacity=1024' + "\n" * (10 * 1024 * 1024))
 
 	result = proxy.build_and_run_proxy(
-		args=["-c", str(proxy.config_path)],
+		proxy_args=["-c", str(proxy.config_path)],
 		wait_until_end=True,
 		check = True
 	)
@@ -60,7 +58,7 @@ def test_proxy_reload_config(proxy_fixture):
 		f.write('')
 	proxy.update_config('option="initial_value"')
 
-	proc = proxy.build_and_run_proxy(args=["-c", str(proxy.config_path)], wait_until_end=True)
+	proc = proxy.build_and_run_proxy(proxy_args=["-c", str(proxy.config_path)], wait_until_end=False, check=False)
 	time.sleep(proxy.proxy_timeout)
 
 	try:

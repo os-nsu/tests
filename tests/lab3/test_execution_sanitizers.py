@@ -23,7 +23,7 @@ def test_execution_with_sanitizers(proxy_fixture, sanitizer):
 	extra_env["UBSAN_OPTIONS"] = f"{extra_env['SANITIZER_OPTIONS']}"
 
 	proxy = proxy_fixture
-	proc = proxy.build_and_run_proxy(extra_env=extra_env, wait_until_end=False, check=False)
+	proc = proxy.build_and_run_proxy(make_env=extra_env, wait_until_end=False, check=False)
 	time.sleep(proxy.proxy_timeout)
 	try:
 		send_signal(proc, signal.SIGINT)
