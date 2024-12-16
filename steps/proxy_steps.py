@@ -1,8 +1,5 @@
 # steps/proxy_steps.py
 
-import os
-import subprocess
-import time
 import pytest
 
 from steps.build_steps import simple_clean, make
