@@ -1,6 +1,5 @@
 # tests/lab1/test_build.py
 
-import subprocess
 import os
 import pytest
 
@@ -11,6 +10,7 @@ from steps.build_steps import (
 from steps.test_steps import (
     check_file_exists
 )
+from steps.utils import run_command
 # -------------------------------------
 # Tests for the static library
 # -------------------------------------
@@ -26,6 +26,7 @@ def test_static_library_compilation(project_dir, master_bin_name):
     """Test that the master and static library compile successfully."""
     simple_clean(project_dir)
     simple_make(project_dir)
+
     check_file_exists(master_bin_name)
 
 @pytest.mark.dependency(depends=["test_static_library_compilation"])
@@ -33,8 +34,9 @@ def test_static_library_inclusion(project_dir, master_bin_name):
     """Test that the static library function is included in the proxy executable."""
     simple_clean(project_dir)
     simple_make(project_dir)
-    result = subprocess.run(["nm", "--defined-only", master_bin_name], capture_output=True, text=True)
-    assert result.returncode == 0, "nm command failed."
+
+    result = run_command(["nm", "--defined-only", master_bin_name], cwd=project_dir, check=True)
+
     symbols = result.stdout
     assert "hello_from_static_lib" in symbols, "Function 'hello_from_static_lib' not found in master binary symbols."
 
@@ -50,7 +52,9 @@ def test_dynamic_library_compilation(project_dir):
     """Test that the dynamic library compiles successfully."""
     simple_clean(project_dir)
     simple_make(project_dir)
+
     dynamic_lib = os.path.join(project_dir, 'install', 'libdynamic.so')
+
     check_file_exists(dynamic_lib)
 
 @pytest.mark.dependency(depends=["test_dynamic_library_compilation"])
@@ -58,8 +62,9 @@ def test_dynamic_library_dependencies(project_dir, master_bin_name):
     """Test that the dynamic library links to proxy executable."""
     simple_clean(project_dir)
     simple_make(project_dir)
-    result = subprocess.run(["ldd", master_bin_name], capture_output=True, text=True)
-    assert result.returncode == 0, "ldd command failed."
+
+    result = run_command(["ldd", master_bin_name], cwd=project_dir, check=True)
+
     dependencies = result.stdout
     assert "libdynamic.so" in dependencies, "Dynamic library 'libdynamic.so' not found in master binary dependencies."
 
@@ -77,4 +82,5 @@ def test_plugin_compilation(project_dir, plugin_bin_name):
     """Test that the plugin compiles successfully."""
     simple_clean(project_dir)
     simple_make(project_dir)
+
     check_file_exists(plugin_bin_name)

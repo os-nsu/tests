@@ -26,7 +26,7 @@ def test_log_file_creation(proxy_fixture):
 def test_log_contains_message(proxy_fixture, message, start_position):
 	"""Test that specific messages are presented in the log."""
 	proxy = proxy_fixture
-	proc = proxy.build_and_run_proxy(wait_until_end=False)
+	proc = proxy.build_and_run_proxy(wait_until_end=False, check=False)
 	try:
 		line_number, line_content = wait_for_log_message(
 			proxy,
@@ -45,7 +45,7 @@ def test_log_messages_in_order(proxy_fixture):
 	messages = ["Logger initialized", "Main loop started"]
 	start_position = 0
 
-	proc = proxy.build_and_run_proxy(wait_until_end=True)
+	proc = proxy.build_and_run_proxy(wait_until_end=True, check=True)
 
 	try:
 		for message in messages:

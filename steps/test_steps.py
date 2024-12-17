@@ -1,18 +1,19 @@
 # steps/test_steps.py
 
 import os
-import subprocess
 import glob
 import pytest
 
+from steps.utils import run_command
+
 
 def check_file_exists(file_path):
-    """Check that a file exists."""
-    assert os.path.isfile(file_path), f"File '{file_path}' does not exist."
+	"""Check that a file exists."""
+	assert os.path.isfile(file_path), f"File '{file_path}' does not exist."
 
 def check_directory_exists(dir_path):
-    """Check that a directory exists."""
-    assert os.path.isdir(dir_path), f"Directory '{dir_path}' does not exist."
+	"""Check that a directory exists."""
+	assert os.path.isdir(dir_path), f"Directory '{dir_path}' does not exist."
 
 def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 	"""Reads the coremudp_dir file."""
@@ -74,15 +75,14 @@ def check_for_coredump_difference(proxy_bin_path, project_dir, start_coredumps, 
 	new_coredumps = end_coredumps - start_coredumps
 	if new_coredumps:
 		coredump_file = new_coredumps.pop()
-		gdb_command = f"gdb --batch -ex 'bt' {proxy_bin_path} {coredump_file}"
-		try:
-			gdb_result = subprocess.run(gdb_command, cwd=project_dir, capture_output=True, text=True, shell=True, check=True)
-			if gdb_result.stdout:
-				segfault_details = f"Stacktrace from coredump ({coredump_file}):\n{gdb_result.stdout}"
-			else:
-				segfault_details = f"Failed to retrieve stacktrace from coredump ({coredump_file})."
-		except subprocess.CalledProcessError as e:
-			segfault_details = f"gdb failed to process coredump ({coredump_file}): {e.stderr}"
+
+		gdb_command = ["gdb", "--batch", "-ex", "bt", proxy_bin_path, coredump_file]
+		gdb_result = run_command(gdb_command, cwd=project_dir, check=False)
+		if gdb_result.stdout:
+			segfault_details = f"Stacktrace from coredump ({coredump_file}):\n{gdb_result.stdout}"
+		else:
+			segfault_details = f"Failed to retrieve stacktrace from coredump ({coredump_file})."
+
 		return True, segfault_details
 	return False, ""
 
