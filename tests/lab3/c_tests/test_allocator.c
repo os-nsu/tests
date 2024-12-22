@@ -1,5 +1,4 @@
-//test_cache.c
-
+//tests/lab3/c_tests/test_allocator.c
 
 #include <stdio.h>
 #include <string.h>
@@ -46,10 +45,12 @@ void test_invalid_free() {
 
 int main() {
     printf("Running allocator tests...\n");
+
     test_allocator_init();
     test_simple_allocation();
     test_large_allocation();
     test_invalid_free();
+
     printf("All tests finished.\n");
     return 0;
 }

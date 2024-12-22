@@ -1,55 +1,65 @@
-//test_cache.c
-
+//tests/lab3/c_tests/test_cache.c
 
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "alloc.h"
+#include "cache.h"
 
-#define ALLOCATOR_SIZE (1024 * 1024)
-#define SIMPLE_ALLOCATION_SIZE 128
-#define LARGE_ALLOCATION_SIZE (10 * 1024 * 1024)
+#define CACHE_SIZE (1024 * 1024)
+#define KEY1 "key1"
+#define VALUE1 "value1"
+#define VALUE1_SIZE (strlen(VALUE1) + 1)
 
-void test_allocator_init() {
-    if (my_allocator_init(ALLOCATOR_SIZE) == 0) {
-        printf("[TEST 1] Allocator initialization: PASS\n");
+void test_construct_cache() {
+    if (construct_cache(CACHE_SIZE) == 0) {
+        printf("[TEST 1] Construct cache: PASS\n");
     } else {
-        printf("[TEST 1] Allocator initialization: FAIL\n");
+        printf("[TEST 1] Construct cache: FAIL\n");
     }
 }
 
-void test_simple_allocation() {
-    void *p = my_malloc(SIMPLE_ALLOCATION_SIZE);
-    if (p != NULL) {
-        printf("[TEST 2] Simple allocation: PASS\n");
-        memset(p, 0xAA, SIMPLE_ALLOCATION_SIZE);
-        my_free(p);
-        printf("[TEST 3] Simple deallocation: PASS\n");
+void test_cache_write() {
+    if (cache_write(KEY1, VALUE1, VALUE1_SIZE, 0) == 0) {
+        printf("[TEST 2] Cache write: PASS\n");
     } else {
-        printf("[TEST 2] Simple allocation: FAIL\n");
+        printf("[TEST 2] Cache write: FAIL\n");
     }
 }
 
-void test_large_allocation() {
-    void *p = my_malloc(LARGE_ALLOCATION_SIZE);
-    if (p == NULL) {
-        printf("[TEST 4] Large allocation (expected failure): PASS\n");
+void test_cache_read_existing_key() {
+    size_t value_size;
+    char *value = (char*)cache_read(KEY1, &value_size);
+    if (value != NULL && strcmp(value, VALUE1) == 0 && value_size == VALUE1_SIZE) {
+        printf("[TEST 3] Cache read (existing key): PASS\n");
     } else {
-        printf("[TEST 4] Large allocation (expected failure): FAIL\n");
+        printf("[TEST 3] Cache read (existing key): FAIL\n");
     }
 }
 
-void test_invalid_free() {
-    my_free(NULL);
-    printf("[TEST 5] Free NULL pointer: PASS\n");
+void test_cache_read_missing_key() {
+    size_t value_size;
+    char *value = (char*)cache_read("unknown_key", &value_size);
+    if (value == NULL) {
+        printf("[TEST 4] Cache read (missing key): PASS\n");
+    } else {
+        printf("[TEST 4] Cache read (missing key): FAIL\n");
+    }
+}
+
+void test_destruct_cache() {
+    destruct_cache();
+    printf("[TEST 5] Cache destruct: PASS\n");
 }
 
 int main() {
-    printf("Running allocator tests...\n");
-    test_allocator_init();
-    test_simple_allocation();
-    test_large_allocation();
-    test_invalid_free();
-    printf("All tests finished.\n");
+    printf("Running cache tests...\n");
+
+    test_construct_cache();
+    test_cache_write();
+    test_cache_read_existing_key();
+    test_cache_read_missing_key();
+    test_destruct_cache();
+
+    printf("All cache tests completed.\n");
     return 0;
 }

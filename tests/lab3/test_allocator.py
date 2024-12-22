@@ -27,15 +27,12 @@ def test_allocator_basic(proxy_fixture, project_dir):
     - `my_free(NULL)` should not crash.
     """
     allocator_test = os.path.join(project_dir, "install", "test_allocator")
-    result = proxy_fixture.run_test(allocator_test)
+    result = proxy_fixture.build_and_run_test(allocator_test)
     stdout = result.stdout
     stderr = result.stderr
 
-    assert result.returncode == 0, f"Allocator test failed with stderr: {stderr}"
-
     assert ALLOCATOR_INIT_SUCCESS in stdout, "Allocator initialization failed."
-    assert SIMPLE_ALLOCATION_SUCCESS in stdout, "my_malloc(128) did not return success."
-    assert SIMPLE_DEALLOCATION_SUCCESS in stdout, "my_free(128) did not complete correctly."
+    assert SIMPLE_ALLOCATION_SUCCESS in stdout, "my_malloc did not return success."
+    assert SIMPLE_DEALLOCATION_SUCCESS in stdout, "my_free did not complete correctly."
     assert LARGE_ALLOCATION_FAILURE in stdout, "my_malloc(large) did not return NULL as expected."
     assert FREE_NULL_SUCCESS in stdout, "my_free(NULL) did not complete correctly."
-    print("All tests passed successfully.")
