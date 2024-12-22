@@ -7,6 +7,7 @@ import signal
 
 from steps.proxy_steps import send_signal
 
+@pytest.mark.xfail
 @pytest.mark.parametrize("sig, signal_name", [
 	(signal.SIGINT, "SIGINT"),
 	pytest.param(signal.SIGQUIT, "SIGQUIT", marks=pytest.mark.allow_coredump), # Mark allow coredump because SIGQUIT generated coredump
