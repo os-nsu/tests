@@ -5,13 +5,11 @@ import pytest
 from steps.test_steps import check_file_exists
 from steps.utils import run_command
 
-CURRENT_DIR = os.path.dirname(__file__)
 
-@pytest.mark.dependency(depends=["tests/lab1/config/test_build.py::test_build_config"],
+@pytest.mark.dependency(depends=["tests/lab1/config/test_config_build.py::test_config_build"],
 						scope="session")
-def test_run_config_test():
+def test_config_execution(test_dir):
 
-    test_dir = os.path.join(CURRENT_DIR)
     test_config_bin = os.path.join(test_dir, "test_config")
 
     result = run_command([test_config_bin], cwd=test_dir, check=True)

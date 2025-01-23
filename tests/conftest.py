@@ -57,6 +57,9 @@ def project_dir(request):
 		pytest.fail("No source path was given. Use --src")
 	return os.path.abspath(proxy_src)
 
+@pytest.fixture
+def test_dir(request):
+    return os.path.dirname(request.fspath)
 
 @pytest.fixture(scope="session")
 def proxy_bin_name(project_dir):
