@@ -15,6 +15,7 @@ from steps.utils import run_command
 # Tests for the static library
 # -------------------------------------
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=[
     "tests/lab1/test_file_structure.py::test_files_exist[Makefile]",
     "tests/lab1/test_file_structure.py::test_directories_exist[src]",
@@ -29,6 +30,7 @@ def test_static_library_compilation(project_dir, master_bin_name):
 
     check_file_exists(master_bin_name)
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["test_static_library_compilation"])
 def test_static_library_inclusion(project_dir, master_bin_name):
     """Test that the static library function is included in the proxy executable."""
@@ -43,7 +45,7 @@ def test_static_library_inclusion(project_dir, master_bin_name):
 # -------------------------------------
 # Tests for the dynamic library
 # -------------------------------------
-
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=[
     "tests/lab1/test_build.py::test_static_library_compilation",
     "tests/lab1/test_file_structure.py::test_files_exist[src/backend/dynamic_lib.c]",],
@@ -57,6 +59,7 @@ def test_dynamic_library_compilation(project_dir):
 
     check_file_exists(dynamic_lib)
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["test_dynamic_library_compilation"])
 def test_dynamic_library_dependencies(project_dir, master_bin_name):
     """Test that the dynamic library links to proxy executable."""
@@ -72,6 +75,7 @@ def test_dynamic_library_dependencies(project_dir, master_bin_name):
 # Tests for the plugin
 # -------------------------------------
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=[
     "tests/lab1/test_build.py::test_dynamic_library_compilation",
     "tests/lab1/test_file_structure.py::test_directories_exist[contrib]",

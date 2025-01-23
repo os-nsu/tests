@@ -6,7 +6,7 @@ import pytest
 # -------------------------------------
 # Test outputs from static library
 # -------------------------------------
-
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_static_library_compilation"],
 						scope="session")
 def test_static_library_output(proxy_fixture):
@@ -23,6 +23,7 @@ def test_static_library_output(proxy_fixture):
 # Test outputs from dynamic library
 # -------------------------------------
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_dynamic_library_compilation"],
 						scope="session")
 def test_dynamic_library_output(proxy_fixture):
@@ -39,6 +40,7 @@ def test_dynamic_library_output(proxy_fixture):
 # Test outputs from the plugin
 # -------------------------------------
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["tests/lab1/test_build.py::test_plugin_compilation"],
 						scope="session")
 def test_plugin_output(proxy_fixture):
@@ -60,6 +62,7 @@ def test_plugin_output(proxy_fixture):
 # Test everything together
 # -------------------------------------
 
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=[
 	"test_static_library_output",
 	"test_dynamic_library_output",
@@ -86,7 +89,7 @@ def test_proxy_outputs(proxy_fixture):
 # -------------------------------------
 # Test plugin dlclose
 # -------------------------------------
-
+@pytest.mark.skip()
 @pytest.mark.dependency(depends=["test_plugin_output"])
 def test_plugin_dlclose(proxy_fixture):
 	"""Test that the plugin is correctly closed using dlclose."""
@@ -105,8 +108,7 @@ def test_plugin_dlclose(proxy_fixture):
 # -------------------------------------
 # Test something
 # -------------------------------------
-
-@pytest.mark.xfail
+@pytest.mark.skip()
 def test_run_with_help_argument(proxy_fixture):
 	"""Tests running the proxy successfully with '--help' argument."""
 	proxy = proxy_fixture
@@ -115,7 +117,7 @@ def test_run_with_help_argument(proxy_fixture):
 
 	assert  result.stdout != "", "Expected usage information in output."
 
-@pytest.mark.xfail
+@pytest.mark.skip()
 def test_run_with_invalid_arguments(proxy_fixture):
 	"""Tests running the proxy with invalid arguments."""
 	proxy = proxy_fixture

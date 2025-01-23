@@ -57,17 +57,14 @@ def project_dir(request):
 		pytest.fail("No source path was given. Use --src")
 	return os.path.abspath(proxy_src)
 
+
 @pytest.fixture(scope="session")
-def proxy_bin_name(request, project_dir):
-	return os.path.abspath(f"{project_dir}/install/proxy")
+def proxy_bin_name(project_dir):
+    return os.path.abspath(os.path.join(project_dir, "install", "proxy"))
 
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
-
-@pytest.fixture(scope="session")
-def master_bin_name(project_dir):
-    return os.path.abspath(os.path.join(project_dir, "install", "proxy"))
 
 @pytest.fixture(scope="session")
 def plugin_bin_name(project_dir):
