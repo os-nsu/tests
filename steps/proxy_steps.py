@@ -2,10 +2,6 @@
 
 import pytest
 
-from steps.build_steps import simple_clean, make
-from steps.utils import run_command, start_command
-
-
 def send_signal(proc, sig):
 	"""Sends the specified signal to the process."""
 	if proc.poll() is None:

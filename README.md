@@ -1,38 +1,68 @@
-## Tests for nsu os proxy
+## Тесты для студенческих прокси (nsu os proxy)
 
-Tests are written using pytest framework.
+CLI-программа для тестирования студенческих прокси.
+Задания, их формат и описание: https://github.com/os-nsu/proxy-tasks
 
-### Installing dependencies
+
+### Установка зависимостей
+
+Перед запуском тестов необходимо установить все зависимости, указанные в файле requirements.txt.
+Выполните следующую команду:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Running tests
+### Запуск тестов
 
-To view all available options and understand how to use the test runner, use the --help flag
-Example
+Чтобы ознакомиться со всеми доступными параметрами и понять, как лучше использовать программу для ваших задач, воспользуйтесь флагом --help
+
 ```bash
 ./run_tests.py --help
 ```
 
-Example
+### Запуск тестов
+
+Чтобы запустить тесты, передайте путь к исходникам прокси через аргумент --src
+
 ```bash
-./run_tests.py --src ../proxy-grisha
+./run_tests.py --src ../proxy_grisha
 ```
 
-To run tests only for a specific laboratory(or multiple laboratory) work, use the --lab-num argument followed by the lab number(or numbers).
-Example: Run tests for lab 1.
+### Запуск тестов для конкретных лабораторных работ
+
+Если необходимо протестировать только одну или несколько лабораторных работ, используйте аргумент --labs(-l), указывая номер или несколько номеров лабораторных.
+
+Примеры :
+1) Запуск тестов для лабораторной работы №1:
+
 ```bash
-./run_tests.py --lab-num 1 --src ../proxy-grisha
+./run_tests.py --src ../proxy_grisha --labs lab1
 ```
 
-Example: Run tests for Lab 1 and Lab 2.
 ```bash
-./run_tests.py --lab-num 1 2 --src ../proxy-grisha
+./run_tests.py --src ../proxy_grisha -l lab1
 ```
 
-Example: Run tests for Lab 1, Lab 2, and Lab 4.
+2) Запуск тестов для лабораторных работ №1 и №2:
+
 ```bash
-./run_tests.py --lab-num 1 2 4 --src ../proxy-grisha
+./run_tests.py --src ../proxy_grisha --labs lab1 lab2
+```
+
+```bash
+./run_tests.py --src ../proxy_grisha -l lab1 lab2
+```
+
+### Запуск тестов с полными логами
+
+По умолчанию программа выводит логи только для непрошедших тестов.
+Если необходимо видеть логи вообще всех тестов, используйте флаг --full-logs (или -full)
+
+```bash
+./run_tests.py --src ../proxy_grisha --full-logs
+```
+
+```bash
+./run_tests.py --src ../proxy_grisha -full
 ```
