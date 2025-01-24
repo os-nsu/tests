@@ -1,4 +1,4 @@
-# File: lab1/config/Makefile
+# tests/lab1/config/Makefile
 
 MAINDIR ?= $(shell pwd)
 

@@ -8,8 +8,8 @@ def simple_make(project_dir):
 	return make(project_dir)
 
 def simple_clean(project_dir):
-	res = run_command(args=["make", "clean"], cwd=project_dir, check=True)
-	return res
+    """Cleans the project by calling make with the 'clean' target."""
+    return make(project_dir, make_args=["clean"])
 
 def make(project_dir, make_args=[], extra_env={}, check=True):
 	"""Builds the proxy with specified flags."""

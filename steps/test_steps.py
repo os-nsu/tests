@@ -9,11 +9,11 @@ from steps.utils import run_command
 
 def check_file_exists(file_path):
 	"""Check that a file exists."""
-	assert os.path.isfile(file_path), f"File '{file_path}' does not exist."
+	return os.path.isfile(file_path)
 
 def check_directory_exists(dir_path):
 	"""Check that a directory exists."""
-	assert os.path.isdir(dir_path), f"Directory '{dir_path}' does not exist."
+	return os.path.isdir(dir_path)
 
 def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 	"""Reads the coremudp_dir file."""

@@ -12,43 +12,11 @@ from steps.test_steps import(
 	check_for_coredump_difference,
 	get_coredump_pattern
 )
+
 # CLI arguments parser
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store", help="Path to the proxy source directory.")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
-	parser.addoption("--lab-num", action="store", default=None, type=int, nargs='+' ,help="Run tests up to the specified lab number.")
-
-def pytest_collection_modifyitems(config, items):
-	lab_nums = config.getoption("--lab-num")
-
-	if not lab_nums:
-		return
-
-	included_labs = [f"lab{n}" for n in lab_nums]
-
-	selected_items = []
-	deselected_items = []
-
-	base_tests_dir = os.path.abspath(os.path.dirname(__file__))
-	for item in items:
-		test_file = os.path.abspath(item.fspath)
-		test_dir = os.path.dirname(test_file)
-
-		is_included = False
-		for lab in included_labs:
-			lab_dir = os.path.abspath(os.path.join(base_tests_dir, lab))
-			if test_dir.startswith(lab_dir):
-				is_included = True
-				selected_items.append(item)
-				break
-
-		if not is_included:
-			deselected_items.append(item)
-
-	if deselected_items:
-		config.hook.pytest_deselected(items=deselected_items)
-		items[:] = selected_items
-
 
 @pytest.fixture(scope="session")
 def project_dir(request):

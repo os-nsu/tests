@@ -16,6 +16,7 @@ int main(void) {
         printf("[TEST 1] create_config_table first call: PASS\n");
     } else {
         printf("[TEST 1] create_config_table first call: FAIL (got %d)\n", result);
+        return 1;
     }
 
     printf("test_config finished.\n");

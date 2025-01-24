@@ -16,6 +16,7 @@ int main(void) {
         printf("[TEST 1] init_logger first call: PASS\n");
     } else {
         printf("[TEST 1] init_logger first call: FAIL (got %d)\n", result);
+        return 1;
     }
 
     printf("test_logger finished.\n");
