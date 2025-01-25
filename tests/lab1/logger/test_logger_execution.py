@@ -22,6 +22,6 @@ def test_logger_execution(test_dir):
     stdout = result.stdout
     if "[TEST 1] init_logger first call: PASS" not in stdout:
         pytest.fail(
-            "[ERROR] test_logger did not report PASS for init_logger.\n"
+            "[ERROR] test_logger did not report PASS for init_logger [TEST 1].\n"
             f"Actual stdout:\n{stdout}"
         )

@@ -22,6 +22,6 @@ def test_config_execution(test_dir):
     stdout = result.stdout
     if "[TEST 1] create_config_table first call: PASS" not in stdout:
         pytest.fail(
-            "[ERROR] test_config did not report PASS for create_config_table.\n"
+            "[ERROR] test_config did not report PASS for create_config_table [TEST 1].\n"
             f"Actual stdout:\n{stdout}"
         )

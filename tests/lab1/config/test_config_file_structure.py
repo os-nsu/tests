@@ -17,5 +17,4 @@ def test_config_files_exist(project_dir, file_path):
             f"[ERROR] Required file '{file_path}' was not found in the expected location after the global build.\n"
             f"Expected path: {full_path}\n"
             "Please verify that your Makefile correctly places the file into the 'install/' directory.\n"
-            "Hint: Check your build process for potential issues or missing steps."
         )

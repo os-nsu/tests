@@ -4,12 +4,36 @@ import os
 import pytest
 from steps.build_steps import make, simple_clean
 from steps.test_steps import check_file_exists
+from steps.utils import run_command
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=[
     f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[{os.path.join("install", "liblogger.so")}]",
-], scope='session')
+                        ], scope='session')
+def test_logger_symbols(project_dir):
+    """
+    Check that the dynamic library liblogger.so contains the function init_logger.
+    """
+    liblogger = os.path.join(project_dir, "install", "liblogger.so")
+    if not os.path.isfile(liblogger):
+        pytest.fail(f"liblogger.so not found at {liblogger}")
+
+    res = run_command(["nm", "--defined-only", liblogger], cwd=project_dir, check=True)
+    symbols = res.stdout
+    if "init_logger" not in symbols:
+        pytest.fail(
+            "[ERROR] 'init_logger' not found in liblogger.so.\n"
+            "Make sure you've implemented it or exported it properly."
+        )
+
+@pytest.mark.lab1
+@pytest.mark.dependency(depends=[
+    "tests/lab1/logger/test_logger_build.py::test_logger_symbols",
+                        ], scope='session')
 def test_logger_build(project_dir, test_dir):
+    """
+    Test the build process for logger and ensure it generates the required binaries.
+    """
     simple_clean(project_dir=test_dir)
 
     make_result = make(
