@@ -29,6 +29,10 @@ def project_dir(request):
 def project_bin_dir(project_dir):
 	return os.path.join(project_dir, "install")
 
+@pytest.fixture(scope="session")
+def project_bin_plugins_dir(project_bin_dir):
+	return os.path.join(project_bin_dir, "plugins")
+
 @pytest.fixture
 def test_dir(request):
     return os.path.dirname(request.fspath)
@@ -40,10 +44,6 @@ def proxy_bin_name(project_dir):
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
-
-@pytest.fixture(scope="session")
-def plugin_bin_name(project_dir):
-    return os.path.abspath(os.path.join(project_dir, "install", "contrib", "plugin", "plugin.so"))
 
 @pytest.fixture(scope="session")
 def core_pattern():

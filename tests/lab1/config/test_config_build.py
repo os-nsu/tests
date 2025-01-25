@@ -36,6 +36,7 @@ def test_config_symbols(project_bin_dir):
     "tests/lab1/config/test_config_build.py::test_config_symbols"
                         ], scope='session')
 def test_config_build(project_dir, test_dir):
+
     simple_clean(project_dir=test_dir)
 
     make_result = make(
