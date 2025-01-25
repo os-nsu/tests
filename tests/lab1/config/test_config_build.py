@@ -8,7 +8,7 @@ from steps.utils import run_command
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=[
-    f"tests/lab1/config/test_config_file_structure.py::test_config_files_exist[{os.path.join("install", "libconfig.a")}]"],
+    f"tests/lab1/config/test_config_file_structure.py::test_config_files_exist[libconfig.a]"],
                         scope="session")
 def test_config_symbols(project_bin_dir):
     """

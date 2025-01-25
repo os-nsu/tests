@@ -8,10 +8,10 @@ from steps.test_steps import check_file_exists
 @pytest.mark.dependency(depends=["tests/test_build.py::test_global_build"],
 						scope="session")
 @pytest.mark.parametrize("file_path", [
-    os.path.join("install", "libconfig.a"),
-])
-def test_config_files_exist(project_dir, file_path):
-    full_path = os.path.join(project_dir, file_path)
+    "libconfig.a",
+    ])
+def test_config_files_exist(project_bin_dir, file_path):
+    full_path = os.path.join(project_bin_dir, file_path)
     if not check_file_exists(full_path):
         pytest.fail(
             f"[ERROR] Required file '{file_path}' was not found in the expected location after the global build.\n"
