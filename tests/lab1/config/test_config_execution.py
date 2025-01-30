@@ -11,7 +11,7 @@ def test_config_execution(test_dir):
 
     test_config_bin = os.path.join(test_dir, "test_config")
 
-    result = run_command([test_config_bin], cwd=test_dir, check=False)
+    result = run_command([test_config_bin], cwd=test_dir, check=True)
     if result.returncode != 0:
         pytest.fail(
             f"[ERROR] test_config exited with non-zero code {result.returncode}.\n"

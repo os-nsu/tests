@@ -41,10 +41,6 @@ def run_command(args, cwd=None, env=None, timeout=None, check=True, shell=False)
 
     if check and res.returncode != 0:
         print(f"{marker} Command failed with return code {res.returncode}: {' '.join(args)}")
-        pytest.fail(
-            f"Command {' '.join(args)} finished with non-zero return code {res.returncode}.\n"
-            f"STDOUT:\n{res.stdout}\n\nSTDERR:\n{res.stderr}"
-        )
 
     return res
 

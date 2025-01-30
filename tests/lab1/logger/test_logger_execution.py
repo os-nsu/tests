@@ -11,7 +11,7 @@ def test_logger_execution(test_dir):
 
     test_logger_bin = os.path.join(test_dir, "test_logger")
 
-    result = run_command([test_logger_bin], cwd=test_dir, check=False)
+    result = run_command([test_logger_bin], cwd=test_dir, check=True)
     if result.returncode != 0:
         pytest.fail(
             f"[ERROR] test_logger exited with non-zero code {result.returncode}.\n"
