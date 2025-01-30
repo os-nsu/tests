@@ -13,7 +13,7 @@ from steps.utils import run_command
 def test_master_execution(project_bin_dir):
     proxy_bin = os.path.join(project_bin_dir, "proxy")
 
-    result = run_command([proxy_bin], cwd=project_bin_dir, check=True)
+    result = run_command([proxy_bin], check=True)
     stdout = result.stdout
     stderr = result.stderr
 
