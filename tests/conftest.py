@@ -4,7 +4,6 @@ import os
 import subprocess
 import pytest
 import warnings
-import tempfile
 
 from entities.proxy import Proxy
 from steps.test_steps import(
@@ -12,66 +11,38 @@ from steps.test_steps import(
 	check_for_coredump_difference,
 	get_coredump_pattern
 )
+
 # CLI arguments parser
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store", help="Path to the proxy source directory.")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
-	parser.addoption("--lab-num", action="store", default=None, type=int, nargs='+' ,help="Run tests up to the specified lab number.")
-
-def pytest_collection_modifyitems(config, items):
-	lab_nums = config.getoption("--lab-num")
-
-	if not lab_nums:
-		return
-
-	included_labs = [f"lab{n}" for n in lab_nums]
-
-	selected_items = []
-	deselected_items = []
-
-	base_tests_dir = os.path.abspath(os.path.dirname(__file__))
-	for item in items:
-		test_file = os.path.abspath(item.fspath)
-		test_dir = os.path.dirname(test_file)
-
-		is_included = False
-		for lab in included_labs:
-			lab_dir = os.path.abspath(os.path.join(base_tests_dir, lab))
-			if test_dir.startswith(lab_dir):
-				is_included = True
-				selected_items.append(item)
-				break
-
-		if not is_included:
-			deselected_items.append(item)
-
-	if deselected_items:
-		config.hook.pytest_deselected(items=deselected_items)
-		items[:] = selected_items
-
 
 @pytest.fixture(scope="session")
-def project_dir(request):
+def proxy_dir(request):
 	proxy_src = request.config.getoption("--src")
 	if proxy_src is None or len(proxy_src) == 0:
 		pytest.fail("No source path was given. Use --src")
 	return os.path.abspath(proxy_src)
 
 @pytest.fixture(scope="session")
-def proxy_bin_name(request, project_dir):
-	return os.path.abspath(f"{project_dir}/install/proxy")
+def proxy_bin_dir(proxy_dir):
+	return os.path.join(proxy_dir, "install")
+
+@pytest.fixture(scope="session")
+def project_bin_plugins_dir(proxy_bin_dir):
+	return os.path.join(proxy_bin_dir, "plugins")
+
+@pytest.fixture
+def current_dir(request):
+    return os.path.dirname(request.fspath)
+
+@pytest.fixture(scope="session")
+def proxy_bin_name(proxy_dir):
+    return os.path.abspath(os.path.join(proxy_dir, "install", "proxy"))
 
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
 	return request.config.getoption("--proxy_timeout")
-
-@pytest.fixture(scope="session")
-def master_bin_name(project_dir):
-    return os.path.abspath(os.path.join(project_dir, "install", "proxy"))
-
-@pytest.fixture(scope="session")
-def plugin_bin_name(project_dir):
-    return os.path.abspath(os.path.join(project_dir, "install", "contrib", "plugin", "plugin.so"))
 
 @pytest.fixture(scope="session")
 def core_pattern():
@@ -127,18 +98,18 @@ def pytest_sessionstart(session):
 def pytest_runtest_call(item):
 	config = item.config
 	proxy_bin_name = item.funcargs.get('proxy_bin_name')
-	project_dir = item.funcargs.get('project_dir')
+	proxy_dir = item.funcargs.get('proxy_dir')
 	core_pattern =config.core_pattern
 
-	if not config.coredump_check_possible or not proxy_bin_name or not core_pattern or not project_dir:
+	if not config.coredump_check_possible or not proxy_bin_name or not core_pattern or not proxy_dir:
 		yield
 		return
 
-	start_coredumps = get_coredump_files(proxy_bin_name, project_dir, core_pattern)
+	start_coredumps = get_coredump_files(proxy_bin_name, proxy_dir, core_pattern)
 
 	yield
 
-	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, project_dir, start_coredumps, core_pattern)
+	segfault_detected, segfault_details = check_for_coredump_difference(proxy_bin_name, proxy_dir, start_coredumps, core_pattern)
 	if segfault_detected:
 		item._segfault_details = segfault_details
 
@@ -161,8 +132,8 @@ def pytest_runtest_makereport(item, call):
 			report.longrepr = f"--- Proxy produced coredump(s) ---\n{item._segfault_details}"
 
 @pytest.fixture
-def proxy_fixture(project_dir, proxy_bin_name, proxy_timeout):
-	proxy = Proxy(project_dir=project_dir,
+def proxy_fixture(proxy_dir, proxy_bin_name, proxy_timeout):
+	proxy = Proxy(project_dir=proxy_dir,
 				  proxy_bin_name=proxy_bin_name,
 				  proxy_timeout=proxy_timeout
 				)

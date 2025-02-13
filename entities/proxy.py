@@ -2,7 +2,7 @@ import subprocess
 import os
 import pytest
 import subprocess
-from steps.build_steps import simple_clean, make
+from steps.build_steps import make_clean, make
 from steps.utils import run_command, start_command
 
 class Proxy:
@@ -120,7 +120,7 @@ class Proxy:
 		"""
 		cmd = [self.proxy_bin_name] + args
 		if wait_until_end:
-			result = run_command(cmd, cwd=self.project_dir, env=env, timeout=timeout, check=check)
+			result = run_command(cmd, cwd=self.project_dir, extra_env=env, timeout=timeout, check=check)
 			return result
 		else:
 			proc = start_command(cmd, cwd=self.project_dir, env=env, text=True)
@@ -142,7 +142,7 @@ class Proxy:
 			If wait_until_end=True, returns the CompletedProcess object.
 			If wait_until_end=False, returns the Popen object.
 		"""
-		simple_clean(self.project_dir)
+		make_clean(self.project_dir)
 		make(self.project_dir, make_args, make_env, check=check)
 
 		if self.log_file_path and os.path.exists(self.log_file_path):
