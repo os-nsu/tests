@@ -18,8 +18,10 @@ def test_time_execution_wrapper(proxy_bin_dir, current_dir):
 
     symlink_path = os.path.join(proxy_bin_dir, "libtime.so")
 
+    library_path = os.path.join(proxy_bin_dir, lib_name)
+
     os.remove(symlink_path)
-    os.symlink(os.path.join(bin_dir, lib_name), symlink_path)
+    os.symlink(library_path, symlink_path)
 
     result = run_command([binary_path])
 
@@ -48,8 +50,10 @@ def test_time_execution_syscall(proxy_bin_dir, current_dir):
 
     symlink_path = os.path.join(proxy_bin_dir, "libtime.so")
 
+    library_path = os.path.join(proxy_bin_dir, lib_name)
+
     os.remove(symlink_path)
-    os.symlink(os.path.join(bin_dir, lib_name), symlink_path)
+    os.symlink(library_path, symlink_path)
 
     result = run_command([binary_path])
 
@@ -78,8 +82,10 @@ def test_time_execution_assembler(proxy_bin_dir, current_dir):
 
     symlink_path = os.path.join(proxy_bin_dir, "libtime.so")
 
+    library_path = os.path.join(proxy_bin_dir, lib_name)
+
     os.remove(symlink_path)
-    os.symlink(os.path.join(bin_dir, lib_name), symlink_path)
+    os.symlink(library_path, symlink_path)
 
     result = run_command([binary_path])
 

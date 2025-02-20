@@ -5,8 +5,9 @@
 #include "unity.h"
 #include "my_time.h"
 #include <time.h>
+#include <unistd.h>
 
-#define TIMEOUT_DIFF 0.1
+#define TIMEOUT_DIFF 1
 
 void setUp(void) {
 }
@@ -22,15 +23,16 @@ void test_time_syscall(void) {
     TEST_ASSERT_GREATER_THAN_MESSAGE(0, returned_time, "Returned time is invalid (should be > 0)");
 
     TEST_ASSERT_LESS_THAN_MESSAGE(TIMEOUT_DIFF, abs(returned_time - system_time),
-        "Returned time is not within %d seconds of system time");
+        "Returned time is not within timeout seconds of system time");
 }
 
 // Test 2: Check that get_time() returns different values on multiple calls
 void test_multiple_calls(void) {
     time_t first_time = get_time();
+    sleep(1);
     time_t second_time = get_time();
 
-    TEST_ASSERT_NOT_EQUAL_MESSAGE(first_time, second_time, "Consecutive calls returned the same time value");
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(first_time, second_time, "Subsequent calls returned the same time value");
 }
 
 int main(void) {
