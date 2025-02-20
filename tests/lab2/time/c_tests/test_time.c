@@ -22,7 +22,7 @@ void test_time_syscall(void) {
 
     TEST_ASSERT_GREATER_THAN_MESSAGE(0, returned_time, "Returned time is invalid (should be > 0)");
 
-    TEST_ASSERT_LESS_THAN_MESSAGE(TIMEOUT_DIFF, abs(returned_time - system_time),
+    TEST_ASSERT_LESS_OR_EQUAL_MESSAGE(TIMEOUT_DIFF, abs(returned_time - system_time),
         "Returned time is not within timeout seconds of system time");
 }
 
