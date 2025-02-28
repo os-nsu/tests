@@ -6,9 +6,11 @@
 #include "logger.h"
 
 void setUp(void) {
+    fini_logger();
 }
 
 void tearDown(void) {
+    fini_logger();
 }
 
 // Test 1: The first initialization should return 0
@@ -18,7 +20,7 @@ void test_init_logger_first_call(void) {
 
 // Test 2: A repeated call should return 1
 void test_init_logger_second_call(void) {
-    init_logger(NULL, -1);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, init_logger(NULL, -1), "The first call to init_logger() should return 0!");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, init_logger(NULL, -1), "A repeated call to init_logger() should return 1!");
 }
 

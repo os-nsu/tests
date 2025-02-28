@@ -10,6 +10,7 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+    init_logger(NULL, -1);
 }
 
 // Test 1: The first cleanup should return 0
@@ -19,7 +20,7 @@ void test_fini_logger_first_call(void) {
 
 // Test 2: A repeated cleanup should return 1
 void test_fini_logger_second_call(void) {
-    fini_logger();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, fini_logger(), "The first call to fini_logger() should return 0!");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, fini_logger(), "A repeated call to fini_logger() should return 1!");
 }
 

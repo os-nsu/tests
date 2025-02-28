@@ -10,6 +10,7 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+    create_config_table();
 }
 
 // Test 1: The first cleanup should return 0
@@ -17,9 +18,9 @@ void test_destroy_config_table_first_call(void) {
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, destroy_config_table(), "The first call to destroy_config_table() should return 0!");
 }
 
-// Test 2: A repeated cleanup should return -1
+// Test 2: A repeated cleanup should return 1
 void test_destroy_config_table_second_call(void) {
-    destroy_config_table();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, destroy_config_table(), "The first call to destroy_config_table() should return 0!");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, destroy_config_table(), "A repeated call to destroy_config_table() should return 1!");
 }
 
