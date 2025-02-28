@@ -3,3 +3,4 @@
 *.xml
 **/.vscode
 **/bin
+**/venv
