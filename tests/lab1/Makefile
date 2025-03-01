@@ -49,7 +49,7 @@ all: config logger plugin_greeting
 config: $(BINS_CONFIG)
 	@echo "Config tests built."
 
-logger: $(BINS_LOGGER)
+logger: time_stub $(BINS_LOGGER)
 	@echo "Logger tests built."
 
 plugin_greeting: $(BINS_PLUGIN_GREETING)
@@ -70,10 +70,9 @@ $(BIN_DIR)/%: $(SRC_CONFIG)/%.c | $(BIN_DIR)
 # Rules making Logger tests
 ###############################################################################
 
-
 $(BIN_DIR)/%: $(SRC_LOGGER)/%.c | $(BIN_DIR)
 	@echo "Building logger test: $@ from $< ..."
-	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_LOGGER)
+	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_LOGGER) $(TIME_STUB_LIB)
 
 ###############################################################################
 # Rules making Greeting plugin tests
@@ -119,3 +118,19 @@ stubs_plugin_greeting: $(STUBS_PLUGIN_SO)
 $(BIN_DIR)/%.so: $(DIR_PLUGIN_GREETING_STUBS)/%.c | $(BIN_DIR)
 	@echo "Building plugin stub: $@ from $< ..."
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< $(LDFLAGS_PLUGIN_GREETING)
+
+###############################################################################
+# Build time stub library (to provide get_time for lab1)
+###############################################################################
+
+TIME_STUB_SRC := time_stubs/time_stub.c
+TIME_STUB_LIB := $(BIN_DIR)/libtime_stub.a
+
+$(TIME_STUB_LIB): $(TIME_STUB_SRC) | $(BIN_DIR)
+	@echo "Building time stub library: $@"
+	$(CC) $(CFLAGS) -c $< -o $(BIN_DIR)/time_stub.o
+	ar rcs $@ $(BIN_DIR)/time_stub.o
+
+.PHONY: time_stub
+time_stub: $(TIME_STUB_LIB)
+	@echo "Time stub built."
