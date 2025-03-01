@@ -20,7 +20,7 @@ CFLAGS := $(CFLAGS) $(UNITY_INC) $(COMMON_INC)
 BIN_DIR := bin
 
 LDFLAGS_CONFIG  := -L$(INSTALL_DIR) -lconfig
-LDFLAGS_LOGGER  := -L$(INSTALL_DIR) -llogger -Wl,-rpath,$(INSTALL_DIR)
+LDFLAGS_LOGGER  := -L$(INSTALL_DIR) -llogger -ltime -Wl,-rpath,$(INSTALL_DIR)
 LDFLAGS_TIME  := -L$(INSTALL_DIR) -ltime -Wl,-rpath,$(INSTALL_DIR)
 
 DIR_CONFIG  := config

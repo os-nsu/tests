@@ -5,7 +5,7 @@ from steps.symbols import check_symbols
 
 @pytest.mark.lab2
 @pytest.mark.dependency(
-    depends=["tests/lab2/logger/test_logger_build.py::test_logger_symbols"],
+    depends=["tests/lab2/logger/test_lab2_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
     scope='session'
 )
 def test_logger_symbols(proxy_bin_dir):
@@ -20,7 +20,7 @@ def test_logger_symbols(proxy_bin_dir):
         )
 
 @pytest.mark.lab2
-@pytest.mark.dependency(depends=["tests/lab2/logger/test_logger_build.py::test_logger_symbols"],
+@pytest.mark.dependency(depends=["tests/lab2/logger/test_lab2_logger_build.py::test_logger_symbols"],
                         scope="session")
 def test_logger_build(current_dir, proxy_dir):
     build_dir = os.path.join(current_dir, "../")
