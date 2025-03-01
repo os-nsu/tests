@@ -5,7 +5,7 @@
 #include "unity.h"
 #include "logger.h"
 
-static const char *LOG_FILENAME = "single_line.log";
+char *LOG_FILENAME = "single_line.log";
 
 void setUp(void) {
     int ret = init_logger(LOG_FILENAME, 1024);

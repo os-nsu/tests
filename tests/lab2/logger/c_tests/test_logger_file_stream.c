@@ -4,7 +4,7 @@
 #include "unity.h"
 #include "logger.h"
 
-static const char *TEST_LOG_FILENAME = "logger_file_stream.log";
+char *TEST_LOG_FILENAME = "logger_file_stream.log";
 
 void setUp(void) {
     int ret = init_logger(TEST_LOG_FILENAME, 1024 * 100);

@@ -17,7 +17,7 @@
   and do a "truncate" before writing. write_log() must still return 0 (success).
 */
 
-static const char *LOG_FILENAME = "rollover_test.log";
+char *LOG_FILENAME = "rollover_test.log";
 
 void setUp(void) {
     // init_logger with 2 KB limit
