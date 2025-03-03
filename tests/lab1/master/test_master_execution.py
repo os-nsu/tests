@@ -13,6 +13,7 @@ from steps.backup_utils import file_backup
 								 "tests/lab1/config/test_config_execution.py::test_config_execution[test_config_destroy_config_table]",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_init_logger]",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_fini_logger]",
+								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_init_logger_args]",
 								 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_execution[test_plugin_greeting]"],
 						scope="session")
 def test_master_execution(proxy_bin_dir):
