@@ -33,8 +33,7 @@ def test_master_logger_symbols(proxy_bin_dir):
 						scope="session")
 def test_stubs_logger_build(proxy_dir, current_dir):
 	build_dir = os.path.join(current_dir, "../")
-	make_clean(build_dir=build_dir)
-	result = make(build_dir=build_dir, make_args=["stubs_logger"], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+	result = make(build_dir=build_dir, make_args=["stubs_logger_bad"], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 	assert result.returncode == 0, f"Stubs logger build failed"
 
 @pytest.mark.lab1
@@ -42,6 +41,5 @@ def test_stubs_logger_build(proxy_dir, current_dir):
 						scope="session")
 def test_stubs_plugin_build(proxy_dir, current_dir):
 	build_dir = os.path.join(current_dir, "../")
-	make_clean(build_dir=build_dir)
-	result = make(build_dir=build_dir, make_args=["stubs_plugin_greeting"], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+	result = make(build_dir=build_dir, make_args=["stubs_plugin_bad"], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 	assert result.returncode == 0, f"Stubs plugin build failed"
