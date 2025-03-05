@@ -1,3 +1,5 @@
+// tests/stubs/plugin/greeting_bad_name.c
+
 #include "../../src/include/master.h"
 #include <stdio.h>
 

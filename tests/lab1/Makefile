@@ -42,14 +42,14 @@ BINS_PLUGIN_GREETING := $(patsubst $(SRC_PLUGIN_GREETING)/%.c, $(BIN_DIR)/%, $(S
 # Build targets
 ###############################################################################
 
-.PHONY: all config logger plugin_greeting clean
+.PHONY: all config logger plugin_greeting
 
 all: config logger plugin_greeting
 
 config: $(BINS_CONFIG)
 	@echo "Config tests built."
 
-logger: time_stub $(BINS_LOGGER)
+logger: stubs_time $(BINS_LOGGER)
 	@echo "Logger tests built."
 
 plugin_greeting: $(BINS_PLUGIN_GREETING)
@@ -57,6 +57,10 @@ plugin_greeting: $(BINS_PLUGIN_GREETING)
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
+
+clean:
+	@echo "Cleaning binaries..."
+	@rm -rf $(BIN_DIR)
 
 ###############################################################################
 # Rules making Config tests
@@ -83,47 +87,12 @@ $(BIN_DIR)/%: $(SRC_PLUGIN_GREETING)/%.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_PLUGIN_GREETING)
 
 ###############################################################################
-# Rule for clean
+# Build stubs for modules
 ###############################################################################
 
-clean:
-	@echo "Cleaning binaries..."
-	@rm -rf $(BIN_DIR)
-
-###############################################################################
-# Build stubs
-###############################################################################
-
-DIR_LOGGER_STUBS          := $(DIR_LOGGER)/stubs
-STUBS_LOGGER_SRC := $(wildcard $(DIR_LOGGER_STUBS)/*.c)
-STUBS_LOGGER_SO  := $(patsubst $(DIR_LOGGER_STUBS)/%.c, $(BIN_DIR)/%.so, $(STUBS_LOGGER_SRC))
-
-.PHONY: stubs_logger
-stubs_logger: $(STUBS_LOGGER_SO)
-	@echo "Logger stubs built."
-
-$(BIN_DIR)/%.so: $(DIR_LOGGER_STUBS)/%.c | $(BIN_DIR)
-	@echo "Building logger stub: $@ from $< ..."
-	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
-
-
-DIR_PLUGIN_GREETING_STUBS := $(DIR_PLUGIN_GREETING)/stubs
-STUBS_PLUGIN_SRC := $(wildcard $(DIR_PLUGIN_GREETING_STUBS)/*.c)
-STUBS_PLUGIN_SO  := $(patsubst $(DIR_PLUGIN_GREETING_STUBS)/%.c, $(BIN_DIR)/%.so, $(STUBS_PLUGIN_SRC))
-
-.PHONY: stubs_plugin_greeting
-stubs_plugin_greeting: $(STUBS_PLUGIN_SO)
-	@echo "Plugin stubs built."
-
-$(BIN_DIR)/%.so: $(DIR_PLUGIN_GREETING_STUBS)/%.c | $(BIN_DIR)
-	@echo "Building plugin stub: $@ from $< ..."
-	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< $(LDFLAGS_PLUGIN_GREETING)
-
-###############################################################################
-# Build time stub library (to provide get_time for lab1)
-###############################################################################
-
-TIME_STUB_SRC := time_stubs/time_stub.c
+# --- Time stubs (compatibility) ---
+# The time stub is located in tests/stubs/time/good
+TIME_STUB_SRC := ../stubs/time/good/time_stub.c
 TIME_STUB_LIB := $(BIN_DIR)/libtime_stub.a
 
 $(TIME_STUB_LIB): $(TIME_STUB_SRC) | $(BIN_DIR)
@@ -131,6 +100,39 @@ $(TIME_STUB_LIB): $(TIME_STUB_SRC) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -c $< -o $(BIN_DIR)/time_stub.o
 	ar rcs $@ $(BIN_DIR)/time_stub.o
 
-.PHONY: time_stub
-time_stub: $(TIME_STUB_LIB)
+.PHONY: stubs_time
+stubs_time: $(TIME_STUB_LIB)
 	@echo "Time stub built."
+
+# --- Logger stubs (bad) ---
+# Stubs for the logger that simulate errors are located in tests/stubs/logger/bad
+STUBS_LOGGER_BAD_DIR := ../stubs/logger/bad
+STUBS_LOGGER_BAD_SRC := $(wildcard $(STUBS_LOGGER_BAD_DIR)/*.c)
+STUBS_LOGGER_BAD_SO := $(addprefix $(BIN_DIR)/, $(notdir $(STUBS_LOGGER_BAD_SRC:.c=.so)))
+
+
+.PHONY: stubs_logger_bad
+stubs_logger_bad: $(STUBS_LOGGER_BAD_SO)
+	@echo "Logger bad stubs built."
+
+$(STUBS_LOGGER_BAD_SO): $(BIN_DIR)/%.so : $(STUBS_LOGGER_BAD_DIR)/%.c | $(BIN_DIR)
+	@echo "Building logger bad stub: $@ from $< ..."
+	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
+
+# --- Plugin stubs (bad) ---
+# Stubs for plugins (e.g., greeting) that simulate errors are located in tests/stubs/plugin/greeting/bad
+STUBS_PLUGIN_BAD_DIR := ../stubs/plugin/greeting/bad
+STUBS_PLUGIN_BAD_SRC := $(wildcard $(STUBS_PLUGIN_BAD_DIR)/*.c)
+STUBS_PLUGIN_BAD_SO := $(addprefix $(BIN_DIR)/, $(notdir $(STUBS_PLUGIN_BAD_SRC:.c=.so)))
+
+.PHONY: stubs_plugin_bad
+stubs_plugin_bad: $(STUBS_PLUGIN_BAD_SO)
+	@echo "Plugin bad stubs built."
+
+$(STUBS_PLUGIN_BAD_SO): $(BIN_DIR)/%.so : $(STUBS_PLUGIN_BAD_DIR)/%.c | $(BIN_DIR)
+	@echo "Building plugin bad stub: $@ from $< ..."
+	$(CC) -shared -fPIC $(CFLAGS) -o $@ $< $(LDFLAGS_PLUGIN_GREETING)
+
+.PHONY: all_stubs
+all_stubs: stubs_time stubs_logger_bad stubs_plugin_bad
+	@echo "All stubs built."

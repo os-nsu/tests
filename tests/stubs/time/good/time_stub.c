@@ -1,4 +1,4 @@
-//tests/lab1/logger/stubs/time_stub.c
+// tests/stubs/time/time_stub.c
 
 #include <time.h>
 
