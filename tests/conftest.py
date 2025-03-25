@@ -94,6 +94,8 @@ def pytest_sessionstart(session):
 	config.coredump_check_possible = True
 	config.core_pattern = core_pattern
 
+	warnings.warn(f"Coredump checking is turned on, core_pattern: {core_pattern}")
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_call(item):
 	config = item.config

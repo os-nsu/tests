@@ -3,6 +3,7 @@
 import os
 import glob
 import pytest
+import warnings
 
 from steps.utils import run_command
 
@@ -17,6 +18,10 @@ def check_directory_exists(dir_path):
 
 def get_coredump_pattern(coredump_path_file="/proc/sys/kernel/core_pattern"):
 	"""Reads the coremudp_dir file."""
+	if not check_file_exists(coredump_path_file):
+		warnings.warn(f"Can't read {coredump_path_file}: file not exists")
+		return None
+
 	try:
 		with open(coredump_path_file, "r") as f:
 			pattern = f.read().strip()
