@@ -1,52 +1,130 @@
-# tests/lab1/plugins/greeting/test_plugin_greeting_execution.py
+# File: tests/lab1/plugins/greeting/test_plugin_greeting_execution.py
 
 import os
-import re
 import pytest
+from steps.build_steps import make, make_clean
 from steps.utils import run_command
+from steps.execution_steps import check_test_result
 
-EXPECTED_BINARIES = [
-    "test_plugin_greeting",
-]
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
-@pytest.mark.lab1
-@pytest.mark.parametrize("binary", EXPECTED_BINARIES)
-@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_build.py::test_plugin_greeting_build"],
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
-def test_plugin_greeting_execution(current_dir, proxy_dir, binary):
-    """
-    Executes the test_plugin_greeting binary, which performs multiple steps like dlopen,
-    dlsym calls, and plugin function invocations (init/fini/name).
-    Validates that all steps pass without errors, based on the C test output.
-    """
+@pytest.mark.lab1
+def test_plugin_greeting_dlopen(request, proxy_dir, proxy_bin_plugins_dir):
 
-    bin_dir = os.path.join(current_dir, "../", "../", "bin")
-    binary_path = os.path.join(bin_dir, binary)
+    target = "test_plugin_greeting_dlopen"
 
-    if not os.path.isfile(binary_path):
-        pytest.fail(f"Binary not found: {binary_path}")
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
-    plugin_dir = os.path.join(proxy_dir, "install", "plugins")
-    env = os.environ.copy()
-    current_ld = env.get("LD_LIBRARY_PATH", "")
-    env["LD_LIBRARY_PATH"] = plugin_dir + os.pathsep + current_ld
+    bin_path = os.path.join(current_file_dir, "bin", "test_plugin_greeting_dlopen")
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([binary_path])
+    result = run_command([bin_path], extra_env={"LD_LIBRARY_PATH": proxy_bin_plugins_dir}, check=False)
+    check_test_result(result, bin_path)
 
-    if result.returncode != 0:
-        failed_tests = []
-        for line in result.stdout.splitlines():
-            match = re.search(r"^[^:]+:\d+:([^:]+):FAIL:", line)
-            if match:
-                failed_tests.append(match.group(1))
-        if failed_tests:
-            all_failures = ", ".join(failed_tests)
-            pytest.fail(
-                f"Unity tests failed in {binary_path}: {all_failures}\n"
-                f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
-            )
-        else:
-            pytest.fail(
-                f"Unity test in {binary_path} failed, but no specific tests could be identified.\n"
-                f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
-            )
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_dlsym_init(request, proxy_dir):
+    target = "test_plugin_greeting_dlsym_init"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_dlsym_name(proxy_dir):
+    target = "test_plugin_greeting_dlsym_name"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_dlsym_fini(proxy_dir):
+    target = "test_plugin_greeting_dlsym_fini"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_call_init(proxy_dir):
+    target = "test_plugin_greeting_call_init"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_call_name(proxy_dir):
+    target = "test_plugin_greeting_call_name"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_call_fini(proxy_dir):
+    target = "test_plugin_greeting_call_fini"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
+						scope="session")
+@pytest.mark.lab1
+def test_plugin_greeting_dlclose(proxy_dir):
+    target = "test_plugin_greeting_dlclose"
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
+
+    bin_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
+
+    result = run_command([bin_path], check=False)
+    check_test_result(result, bin_path)

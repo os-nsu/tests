@@ -1,39 +1,59 @@
-#tests/lab1/logger/test_logger_execution.py
+# tests/lab1/logger/test_logger_execution.py
 
 import os
 import re
 import pytest
+from steps.build_steps import make, make_clean
+from steps.execution_steps import check_test_result
 from steps.utils import run_command
 
-EXPECTED_BINARIES = [
-    "test_logger_init_logger",
-    "test_logger_fini_logger",
-    "test_logger_init_logger_args"
-]
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+
 
 @pytest.mark.lab1
-@pytest.mark.parametrize("binary", EXPECTED_BINARIES)
-@pytest.mark.dependency(depends=["tests/lab1/logger/test_logger_build.py::test_logger_build"],
-                        scope="session")
-def test_logger_execution(current_dir, binary):
+@pytest.mark.dependency(depends=[
+    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+                        scope='session')
+def test_logger_init_logger(request, proxy_dir):
 
-    bin_dir = os.path.join(current_dir, "../", "bin")
-    binary_path = os.path.join(bin_dir, binary)
+    target = request.function.__name__
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
-    if not os.path.isfile(binary_path):
-        pytest.fail(f"Binary not found: {binary_path}")
+    binary_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
 
-    result = run_command([binary_path])
+    test_result = run_command([binary_path], check=False)
+    check_test_result(test_result, binary_path)
 
-    if result.returncode != 0:
-        failed_tests = []
-        for line in result.stdout.splitlines():
-            match = re.search(r"^[^:]+:\d+:([^:]+):FAIL:", line)
-            if match:
-                failed_tests.append(match.group(1))
+@pytest.mark.lab1
+@pytest.mark.dependency(depends=[
+    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+                        scope='session')
+def test_logger_fini_logger(request):
 
-        if failed_tests:
-            all_failures = ", ".join(failed_tests)
-            pytest.fail(f"Unity tests failed in {binary_path}: {all_failures}")
-        else:
-            pytest.fail(f"Unity test in {binary_path} failed, but no specific tests could be identified.")
+    target = request.function.__name__
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], check=True)
+
+    binary_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
+
+    test_result = run_command([binary_path], check=False)
+    check_test_result(test_result, binary_path)
+
+@pytest.mark.lab1
+@pytest.mark.dependency(depends=[
+    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+                        scope='session')
+def test_logger_init_logger_args(request):
+
+    target = request.function.__name__
+    make_clean(build_dir=current_file_dir)
+    make(build_dir=current_file_dir, make_args=[target], check=True)
+
+    binary_path = os.path.join(current_file_dir, "bin", target)
+    assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
+
+    test_result = run_command([binary_path], check=False)
+    check_test_result(test_result, binary_path)

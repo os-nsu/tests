@@ -22,9 +22,9 @@ def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=
         print(f"{marker} Working directory: {cwd}", file=sys.stdout)
 
     if extra_env:
+        env.update(extra_env)
         env_str = ", ".join(f"{k}={extra_env[k]}" for k in sorted(extra_env))
         print(f"{marker} Environment: {env_str}", file=sys.stdout)
-        env.update(extra_env)
 
     try:
         res = subprocess.run(
@@ -91,3 +91,15 @@ def get_caller_function_name():
         return stack[2].function
 
     return "unknown"
+
+def merge_env(original_env, extra_env, merge_keys=None):
+    if merge_keys is None:
+        merge_keys = ['LD_LIBRARY_PATH']
+
+    env = original_env.copy()
+    for key, value in extra_env.items():
+        if key in merge_keys and key in env and env[key]:
+            env[key] = value + os.pathsep + env[key]
+        else:
+            env[key] = value
+    return env
