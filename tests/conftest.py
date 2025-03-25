@@ -29,7 +29,7 @@ def proxy_bin_dir(proxy_dir):
 	return os.path.join(proxy_dir, "install")
 
 @pytest.fixture(scope="session")
-def project_bin_plugins_dir(proxy_bin_dir):
+def proxy_bin_plugins_dir(proxy_bin_dir):
 	return os.path.join(proxy_bin_dir, "plugins")
 
 @pytest.fixture

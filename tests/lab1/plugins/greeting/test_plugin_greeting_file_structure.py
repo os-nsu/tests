@@ -10,14 +10,14 @@ from steps.test_steps import check_file_exists
 @pytest.mark.parametrize("file_path", [
     os.path.join("greeting.so"),
 ])
-def test_plugin_greeting_files_exist(project_bin_plugins_dir, file_path):
+def test_plugin_greeting_files_exist(proxy_bin_plugins_dir, file_path):
     """
     Verify that greeting.so exists after the global build.
     """
-    full_path = os.path.join(project_bin_plugins_dir, file_path)
+    full_path = os.path.join(proxy_bin_plugins_dir, file_path)
     if not check_file_exists(full_path):
         pytest.fail(
             f"Required plugin file '{file_path}' was not found.\n"
             f"Expected path: {full_path}\n"
-            f"Please verify that your Makefile correctly places greeting.so into '{project_bin_plugins_dir}'."
+            f"Please verify that your Makefile correctly places greeting.so into '{proxy_bin_plugins_dir}'."
         )

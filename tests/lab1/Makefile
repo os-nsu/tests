@@ -71,22 +71,6 @@ $(BIN_DIR)/%: $(SRC_CONFIG)/%.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_CONFIG)
 
 ###############################################################################
-# Rules making Logger tests
-###############################################################################
-
-$(BIN_DIR)/%: $(SRC_LOGGER)/%.c | $(BIN_DIR)
-	@echo "Building logger test: $@ from $< ..."
-	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_LOGGER) $(TIME_STUB_LIB)
-
-###############################################################################
-# Rules making Greeting plugin tests
-###############################################################################
-
-$(BIN_DIR)/%: $(SRC_PLUGIN_GREETING)/%.c | $(BIN_DIR)
-	@echo "Building plugin greeting test: $@ from $< ..."
-	$(CC) $(CFLAGS) $(UNITY_INC) -o $@ $< $(UNITY_SRC) $(LDFLAGS_PLUGIN_GREETING)
-
-###############################################################################
 # Build stubs for modules
 ###############################################################################
 

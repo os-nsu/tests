@@ -4,11 +4,11 @@ import os
 
 from steps.utils import run_command
 
-def make_clean(build_dir):
+def make_clean(build_dir = None):
     """Cleans the project by calling make with the 'clean' target."""
     return make(build_dir, make_args=["clean"])
 
-def make(build_dir, make_args=[], extra_env={}, check=True):
+def make(build_dir = None, make_args=[], extra_env={}, check=True):
 	"""Builds the proxy with specified flags."""
 	env = {}
 
