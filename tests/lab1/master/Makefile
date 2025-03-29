@@ -113,6 +113,22 @@ $(BIN_DIR)/greeting_bad_fini.so: $(greeting_bad_fini_SOURCES)
 	$(CC) -shared -fPIC $(CFLAGS) $(PROXY_INC) -o $@ $^
 
 ###############################################################################
+# greeting_bad_hook.so
+###############################################################################
+
+greeting_bad_hook: $(BIN_DIR)/greeting_bad_hook.so
+	@echo "[OK] Built $@ => $<"
+
+greeting_bad_hook_SOURCES := $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_init.c \
+                                          $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_name.c \
+										  $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_fini.c
+
+$(BIN_DIR)/greeting_bad_hook.so: $(greeting_bad_hook_SOURCES)
+	@mkdir -p $(BIN_DIR)
+	@echo "Building mosaic $@ from $^"
+	$(CC) -shared -fPIC $(CFLAGS) $(PROXY_INC) -o $@ $^
+
+###############################################################################
 # helpers
 ###############################################################################
 

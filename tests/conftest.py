@@ -53,16 +53,28 @@ def proxy_bin_dir(proxy_dir):
 	return os.path.join(proxy_dir, "install")
 
 @pytest.fixture(scope="session")
+def proxy_bin(proxy_bin_dir):
+    return os.path.join(proxy_bin_dir, "proxy")
+
+@pytest.fixture(scope="session")
+def proxy_bin(proxy_bin_dir):
+    return os.path.join(proxy_bin_dir, "proxy")
+
+@pytest.fixture(scope="session")
+def proxy_logger_lib(proxy_bin_dir):
+    return os.path.join(proxy_bin_dir, "liblogger.so")
+
+@pytest.fixture(scope="session")
 def proxy_bin_plugins_dir(proxy_bin_dir):
 	return os.path.join(proxy_bin_dir, "plugins")
+
+@pytest.fixture(scope="session")
+def proxy_plugins_greeting_bin(proxy_bin_plugins_dir):
+	return os.path.join(proxy_bin_plugins_dir, "greeting.so")
 
 @pytest.fixture
 def current_dir(request):
     return os.path.dirname(request.fspath)
-
-@pytest.fixture(scope="session")
-def proxy_bin_name(proxy_dir):
-    return os.path.abspath(os.path.join(proxy_dir, "install", "proxy"))
 
 @pytest.fixture(scope="session")
 def proxy_timeout(request):
