@@ -6,6 +6,7 @@ import pytest
 import warnings
 
 from entities.proxy import Proxy
+from steps.backup_utils import FileBackup
 from steps.test_steps import(
 	get_coredump_files,
 	check_for_coredump_difference,
@@ -15,7 +16,30 @@ from steps.test_steps import(
 # CLI arguments parser
 def pytest_addoption(parser):
 	parser.addoption("--src", action="store", help="Path to the proxy source directory.")
+	parser.addoption("--lab", action="store", type=int, default=1, help = "Flag to the test system, in what lab start testing")
 	parser.addoption("--proxy_timeout", action="store", type=int, default=1, help="Global timeout for tests in seconds.")
+
+@pytest.fixture
+def set_cwd_to_test_file_dir(request, monkeypatch):
+    """
+    Temporarily sets the working directory to the directory of the test file.
+    Useful for tests that use relative paths to files.
+    """
+    test_dir = request.fspath.dirname
+    monkeypatch.chdir(test_dir)
+
+@pytest.fixture
+def file_backup():
+    fb = FileBackup()
+    yield fb
+    fb.restore_all()
+
+@pytest.fixture(scope="session")
+def lab_number(request):
+	lab_number = request.config.getoption("--lab")
+	if lab_number not in [1,2,3,4]:
+		pytest.fail("No lab_num was given. Use --lab")
+	return lab_number
 
 @pytest.fixture(scope="session")
 def proxy_dir(request):
