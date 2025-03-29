@@ -34,9 +34,3 @@ class FileBackup:
         for file_path, backup_path in self._backup_map.items():
             restore_file_backup(file_path, backup_path)
         self._backup_map.clear()
-
-@pytest.fixture
-def file_backup():
-    fb = FileBackup()
-    yield fb
-    fb.restore_all()

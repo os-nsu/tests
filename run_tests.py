@@ -60,7 +60,8 @@ def main():
 		sys.exit(1)
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--src", help="Path to the proxy source directory (passed to pytest).")
+	parser.add_argument("--src", help="Path to the proxy source directory (passed to pytest).", required=True)
+	parser.add_argument("--lab", type=int, choices=[1,2,3,4], help="Flag to the test system, in what lab start testing", required=True)
 	parser.add_argument("--proxy_timeout", "-t", default="1", help="Proxy timeout (passed to pytest).")
 	parser.add_argument("--labs", "-l", nargs="*", help="Markers to run (e.g. lab1, lab2, globaltest).")
 	parser.add_argument("--full-logs", "-full", action="store_true", help="Show full logs for successful tests as well.")
@@ -68,6 +69,8 @@ def main():
 
 	if args.src:
 		unknown.append(f"--src={args.src}")
+	if args.lab:
+		unknown.append(f"--lab={args.lab}")
 	if args.proxy_timeout:
 		unknown.append(f"--proxy_timeout={args.proxy_timeout}")
 
