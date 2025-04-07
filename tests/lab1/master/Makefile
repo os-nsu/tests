@@ -132,9 +132,9 @@ $(BIN_DIR)/greeting_bad_hook.so: $(greeting_bad_hook_SOURCES)
 # helpers
 ###############################################################################
 
-clean:
-	@echo "[master] Cleaning mosaic stubs..."
-	rm -rf $(BIN_DIR)
-
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
+
+clean:
+	@echo "[master] Cleaning bin..."
+	rm -rf $(BIN_DIR)

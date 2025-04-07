@@ -11,8 +11,8 @@ from steps.utils import run_command
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_master_config_symbols",
 								 "tests/lab1/master/test_master_build.py::test_master_logger_symbols",
-								 "tests/lab1/config/test_config_execution.py::test_config_execution[test_config_create_config_table]",
-								 "tests/lab1/config/test_config_execution.py::test_config_execution[test_config_destroy_config_table]",
+								 "tests/lab1/config/test_config_execution.py::test_config_create_table",
+								 "tests/lab1/config/test_config_execution.py::test_config_destroy_table",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_init_logger",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_fini_logger",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_init_logger_args",

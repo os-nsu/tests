@@ -100,3 +100,10 @@ test_logger_init_logger_args: $(BIN_ARGS)
 $(BIN_ARGS): $(TEST_C_ARGS) | $(BIN_DIR)
 	@echo "Building $@ from $(TEST_C_ARGS)"
 	$(CC) $(CFLAGS) $(UNITY_INC) $(PROXY_INC) -o $@ $(TEST_C_ARGS) $(UNITY_SRC) $(LDFLAGS_LOGGER)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+clean:
+	@echo "Cleaning config test binaries..."
+	rm -rf $(BIN_DIR)
