@@ -1,4 +1,4 @@
-// tests/stubs/time/time_stub.c
+// tests/stubs/good/time/time_good_get_time.c
 
 #include "my_time.h"
 

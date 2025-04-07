@@ -3,18 +3,27 @@
 import os
 import shutil
 import pytest
+from steps.build_steps import make, make_clean
+from steps.execution_steps import check_error_output
+from steps.message_templates import format_library_exec_error, format_library_open_error
 from steps.utils import run_command
-from steps.backup_utils import file_backup
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_master_config_symbols",
 								 "tests/lab1/master/test_master_build.py::test_master_logger_symbols",
-								 "tests/lab1/config/test_config_execution.py::test_config_execution[test_config_create_config_table]",
-								 "tests/lab1/config/test_config_execution.py::test_config_execution[test_config_destroy_config_table]",
-								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_init_logger]",
-								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_fini_logger]",
-								 "tests/lab1/logger/test_logger_execution.py::test_logger_execution[test_logger_init_logger_args]",
-								 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_execution[test_plugin_greeting]"],
+								 "tests/lab1/config/test_config_execution.py::test_config_create_table",
+								 "tests/lab1/config/test_config_execution.py::test_config_destroy_table",
+								 "tests/lab1/logger/test_logger_execution.py::test_logger_init_logger",
+								 "tests/lab1/logger/test_logger_execution.py::test_logger_fini_logger",
+								 "tests/lab1/logger/test_logger_execution.py::test_logger_init_logger_args",
+								 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_dlopen",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_dlsym_init",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_dlsym_name",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_dlsym_fini",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_call_init",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_call_name",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_call_fini",
+		 						 "tests/lab1/plugins/greeting/test_plugin_greeting_execution.py::test_plugin_greeting_dlclose"],
 						scope="session")
 def test_master_execution(proxy_bin_dir):
 	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
@@ -22,13 +31,6 @@ def test_master_execution(proxy_bin_dir):
 	result = run_command([proxy_bin], check=True)
 	stdout = result.stdout
 	stderr = result.stderr
-
-	if result.returncode != 0:
-		pytest.fail(
-			f"Master bin returned code {result.returncode}, expected 0.\n"
-			f"STDERR:\n{stderr}\n"
-			f"STDOUT:\n{stdout}"
-		)
 
 	if "greeting initialized" not in stdout:
 		pytest.fail("Missing 'greeting initialized' in master stdout (init).")
@@ -41,116 +43,140 @@ def test_master_execution(proxy_bin_dir):
 	if "Failed to initialize the logger" in stderr:
 		pytest.fail("Logger init failed unexpectedly.")
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_logger_build"],
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
 						scope="session")
 @pytest.mark.lab1
-def test_master_logger_missing_init(proxy_bin_dir, file_backup):
-	logger_path = os.path.join(proxy_bin_dir, "liblogger.so")
+def test_master_logger_missing_init(proxy_dir, proxy_bin, proxy_logger_lib, lab_number, file_backup, set_cwd_to_test_file_dir):
 
-	file_backup.backup(logger_path)
+	make_clean()
+	make(make_args=["logger_bad_init"],
+		 extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
+		 check=True)
+	logger_bad_init_so = os.path.join("bin", "logger_bad_init.so")
 
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	dummy_logger_path = os.path.join(current_dir, "..", "bin", "logger_bad_init.so")
-	shutil.copy2(dummy_logger_path, logger_path)
+	file_backup.backup(proxy_logger_lib)
+	shutil.copy2(logger_bad_init_so, proxy_logger_lib)
 
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
 	result = run_command([proxy_bin], check=False)
-	stderr = result.stderr
-	expected_msg = "Failed to initialize the logger"
-	assert expected_msg in stderr, f"Expected error message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_logger_build"],
+	expected_message = "Failed to initialize the logger"
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Logger")
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
 						scope="session")
 @pytest.mark.lab1
-def test_master_logger_missing_fini(proxy_bin_dir, file_backup):
-	logger_path = os.path.join(proxy_bin_dir, "liblogger.so")
+def test_master_logger_missing_fini(proxy_dir, proxy_bin, proxy_logger_lib, lab_number, file_backup, set_cwd_to_test_file_dir):
 
-	file_backup.backup(logger_path)
+	make_clean()
+	make(make_args=["logger_bad_fini"],
+		 extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
+		 check=True)
 
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	dummy_logger_path = os.path.join(current_dir, "..", "bin", "logger_bad_fini.so")
-	shutil.copy2(dummy_logger_path, logger_path)
+	logger_bad_fini_so = os.path.join("bin", "logger_bad_fini.so")
 
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
+	file_backup.backup(proxy_logger_lib)
+	shutil.copy2(logger_bad_fini_so, proxy_logger_lib)
+
 	result = run_command([proxy_bin], check=False)
-	stderr = result.stderr
-	expected_msg = "Couldn't shut down logger"
-	assert expected_msg in stderr, f"Expected error message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_plugin_build"],
+	expected_message = "Couldn't shut down logger"
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Logger")
+
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
 						scope="session")
 @pytest.mark.lab1
-def test_master_plugin_missing(proxy_bin_dir, file_backup):
-	plugin_dir = os.path.join(proxy_bin_dir, "plugins")
-	plugin_path = os.path.join(plugin_dir, "greeting.so")
+def test_master_plugin_missing(proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
 
-	file_backup.backup(plugin_path)
+	make_clean()
 
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
-	result = run_command([proxy_bin], check=True)
-	stderr = result.stderr
-	expected_msg = "Library couldn't be opened."
-	assert expected_msg in stderr, f"Expected error message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
+	file_backup.backup(proxy_plugins_greeting_bin)
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_plugin_build"],
-						scope="session")
-@pytest.mark.lab1
-def test_master_plugin_missing_init(proxy_bin_dir, file_backup):
-	plugin_dir = os.path.join(proxy_bin_dir, "plugins")
-	plugin_path = os.path.join(plugin_dir, "greeting.so")
-
-	file_backup.backup(plugin_path)
-
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	fake_plugin_path = os.path.join(current_dir, "..", "bin", "greeting_bad_init.so")
-	shutil.copy2(fake_plugin_path, plugin_path)
-
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
 	result = run_command([proxy_bin], check=False)
-	stderr = result.stderr
-	expected_msg = "Library couldn't execute init."
-	assert expected_msg in stderr, f"Expected message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_plugin_build"],
+	expected_message = format_library_open_error(plugin_path=proxy_plugins_greeting_bin, dlopen_error="cannot open shared object file: No such file or directory")
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1)
+
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
 						scope="session")
 @pytest.mark.lab1
-def test_master_plugin_missing_name(proxy_bin_dir, file_backup):
-	plugin_dir = os.path.join(proxy_bin_dir, "plugins")
-	plugin_path = os.path.join(plugin_dir, "greeting.so")
+def test_master_plugin_missing_hook(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
 
-	file_backup.backup(plugin_path)
+	make_clean()
+	make(make_args=["greeting_bad_hook"],
+		 extra_env={"PROXY_DIR": proxy_dir},
+		 check=True)
 
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	fake_plugin_path = os.path.join(current_dir, "..", "bin", "greeting_bad_name.so")
-	shutil.copy2(fake_plugin_path, plugin_path)
+	file_backup.backup(proxy_plugins_greeting_bin)
 
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
+	greeting_bad_hook_so = os.path.join("bin", "greeting_bad_hook.so")
+	shutil.copy2(greeting_bad_hook_so, proxy_plugins_greeting_bin)
+
 	result = run_command([proxy_bin], check=False)
-	stderr = result.stderr
-	expected_msg = "Library couldn't execute name."
-	assert expected_msg in stderr, f"Expected message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
 
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_stubs_plugin_build"],
+	expected_message = format_library_open_error(plugin_path=proxy_plugins_greeting_bin, dlopen_error="undefined symbol: last_executor_start_hook")
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Plugin greeting")
+
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
 						scope="session")
 @pytest.mark.lab1
-def test_master_plugin_missing_fini(proxy_bin_dir, file_backup):
-	plugin_dir = os.path.join(proxy_bin_dir, "plugins")
-	plugin_path = os.path.join(plugin_dir, "greeting.so")
+def test_master_plugin_missing_init(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
 
-	file_backup.backup(plugin_path)
+	make_clean()
+	make(make_args=["greeting_bad_init"],
+		 extra_env={"PROXY_DIR": proxy_dir},
+		 check=True)
 
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	fake_plugin_path = os.path.join(current_dir, "..", "bin", "greeting_bad_fini.so")
-	shutil.copy2(fake_plugin_path, plugin_path)
+	file_backup.backup(proxy_plugins_greeting_bin)
 
-	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
+	greeting_bad_init_so = os.path.join("bin", "greeting_bad_init.so")
+	shutil.copy2(greeting_bad_init_so, proxy_plugins_greeting_bin)
+
 	result = run_command([proxy_bin], check=False)
-	stderr = result.stderr
-	expected_msg = "Library couldn't execute fini."
-	assert expected_msg in stderr, f"Expected message not found."
-	assert result.returncode == 1, f"Expected return_code 1, got {result.returncode}"
+
+	expected_message = format_library_exec_error(function_name="init", plugin_name="greeting", plugin_path=proxy_plugins_greeting_bin, dlsym_error="undefined symbol: init")
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Plugin greeting")
+
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
+						scope="session")
+@pytest.mark.lab1
+def test_master_plugin_missing_name(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
+
+	make_clean()
+	make(make_args=["greeting_bad_name"],
+		 extra_env={"PROXY_DIR": proxy_dir},
+		 check=True)
+
+	file_backup.backup(proxy_plugins_greeting_bin)
+
+	greeting_bad_name_so = os.path.join("bin", "greeting_bad_name.so")
+	shutil.copy2(greeting_bad_name_so, proxy_plugins_greeting_bin)
+
+	result = run_command([proxy_bin], check=False)
+
+	expected_message = format_library_exec_error(function_name="name", plugin_name="greeting", plugin_path=proxy_plugins_greeting_bin, dlsym_error="undefined symbol: name")
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Plugin greeting")
+
+
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_execution.py::test_master_execution"],
+						scope="session")
+@pytest.mark.lab1
+def test_master_plugin_missing_fini(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
+
+	make_clean()
+	make(make_args=["greeting_bad_fini"],
+		 extra_env={"PROXY_DIR": proxy_dir},
+		 check=True)
+
+	file_backup.backup(proxy_plugins_greeting_bin)
+
+	greeting_bad_fini_so = os.path.join("bin", "greeting_bad_fini.so")
+	shutil.copy2(greeting_bad_fini_so, proxy_plugins_greeting_bin)
+
+	result = run_command([proxy_bin], check=False)
+
+	expected_message = format_library_exec_error(function_name="fini", plugin_name="greeting", plugin_path=proxy_plugins_greeting_bin, dlsym_error="undefined symbol: fini")
+	check_error_output(result=result, expected_message=expected_message, expected_returncode=1, target="Plugin greeting")
