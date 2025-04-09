@@ -13,7 +13,9 @@ from steps.utils import run_command
 def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_config_create_config_table"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
@@ -30,7 +32,9 @@ def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 def test_config_destroy_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_config_destroy_config_table"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)

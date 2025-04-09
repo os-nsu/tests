@@ -11,11 +11,12 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_dlopen(request, proxy_dir, proxy_bin_plugins_dir):
+def test_plugin_greeting_dlopen(request, proxy_dir, proxy_bin_plugins_dir, set_cwd_to_test_file_dir):
 
     target = "test_plugin_greeting_dlopen"
-
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", "test_plugin_greeting_dlopen")
@@ -28,9 +29,11 @@ def test_plugin_greeting_dlopen(request, proxy_dir, proxy_bin_plugins_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_dlsym_init(request, proxy_dir):
+def test_plugin_greeting_dlsym_init(request, proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_dlsym_init"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -43,9 +46,11 @@ def test_plugin_greeting_dlsym_init(request, proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_dlsym_name(proxy_dir):
+def test_plugin_greeting_dlsym_name(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_dlsym_name"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -58,9 +63,11 @@ def test_plugin_greeting_dlsym_name(proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_dlsym_fini(proxy_dir):
+def test_plugin_greeting_dlsym_fini(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_dlsym_fini"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -73,9 +80,11 @@ def test_plugin_greeting_dlsym_fini(proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_call_init(proxy_dir):
+def test_plugin_greeting_call_init(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_call_init"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -88,9 +97,11 @@ def test_plugin_greeting_call_init(proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_call_name(proxy_dir):
+def test_plugin_greeting_call_name(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_call_name"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -103,9 +114,11 @@ def test_plugin_greeting_call_name(proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_call_fini(proxy_dir):
+def test_plugin_greeting_call_fini(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_call_fini"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)
@@ -118,9 +131,11 @@ def test_plugin_greeting_call_fini(proxy_dir):
 @pytest.mark.dependency(depends=["tests/lab1/plugins/greeting/test_plugin_greeting_file_structure.py::test_plugin_greeting_files_exist[greeting.so]"],
 						scope="session")
 @pytest.mark.lab1
-def test_plugin_greeting_dlclose(proxy_dir):
+def test_plugin_greeting_dlclose(proxy_dir, set_cwd_to_test_file_dir):
     target = "test_plugin_greeting_dlclose"
-    make_clean(build_dir=current_file_dir)
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(build_dir=current_file_dir, make_args=[target], extra_env={"PROXY_DIR": proxy_dir}, check=True)
 
     bin_path = os.path.join(current_file_dir, "bin", target)

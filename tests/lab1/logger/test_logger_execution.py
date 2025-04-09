@@ -15,7 +15,9 @@ from steps.utils import run_command
 def test_logger_init_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_logger_init_logger"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
@@ -33,7 +35,9 @@ def test_logger_init_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 def test_logger_fini_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_logger_fini_logger"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
@@ -51,7 +55,9 @@ def test_logger_fini_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 def test_logger_init_logger_args(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_logger_init_logger_args"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
