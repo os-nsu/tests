@@ -105,8 +105,7 @@ def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=
     if res.stderr:
         print(f"{prefix} STDERR:\n{res.stderr}", file=sys.stderr)
 
-
-    if check and res.returncode != 0:
+    if res.returncode != 0:
         print(f"{prefix} Command failed with return code {res.returncode}: {' '.join(args)}")
 
     return res
