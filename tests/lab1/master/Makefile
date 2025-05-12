@@ -145,12 +145,12 @@ greeting_bad_hook_SOURCES := $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_init.c 
 										  $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_name.c \
 										  $(STUBS_GOOD_PLUGIN_GREETING)/greeting_good_fini.c
 
-$(BIGREETING_BAD_HOOK_BINN_DIR): $(greeting_bad_hook_SOURCES) | $(BIN_DIR)
+$(GREETING_BAD_HOOK_BIN): $(greeting_bad_hook_SOURCES) | $(BIN_DIR)
 	@echo "Building mosaic $@ from $^"
 	$(CC) -shared -fPIC $(CFLAGS) $(PROXY_INC) -o $@ $^
 
 clean_$(GREETING_BAD_HOOK_TARGET):
-	rm -rf $(BIGREETING_BAD_HOOK_BINN_DIR)
+	rm -rf $(GREETING_BAD_HOOK_BIN)
 
 ###############################################################################
 # Auxiliary
@@ -169,8 +169,7 @@ $(BIN_DIR):
 		clean_$(LOGGER_BAD_INIT_TARGET) \
 		clean_$(GREETING_BAD_INIT_TARGET) \
 		clean_$(GREETING_BAD_NAME_TARGET) \
-		clean_$(GREETING_BAD_FINI_TARGET) \
-		clean_$(ARGSGREETING_BAD_HOOK_TARGET_TARGET)
+		clean_$(GREETING_BAD_FINI_TARGET)
 
 all: $(LOGGER_BAD_INIT_TARGET) \
 	 $(LOGGER_BAD_FINI_TARGET) \
