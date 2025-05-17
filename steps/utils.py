@@ -4,54 +4,109 @@ import inspect
 import os
 import subprocess
 import sys
+import pty
+import select
+import os
+import pty
+import subprocess
+import select
+import threading
 
 import pytest
 
+class ProcessResult:
+    def __init__(self, returncode, stdout, stderr):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+
+def read_fd(fd):
+    output = []
+    while True:
+        try:
+            r, _, _ = select.select([fd], [], [], 0.1)
+            if fd in r:
+                data = os.read(fd, 1024).decode()
+                if not data:
+                    break
+                output.append(data)
+        except OSError:
+            break
+    return ''.join(output)
+
+def execute_with_pty(cmd, timeout=None, **kwargs):
+    stdout_master, stdout_slave = pty.openpty()
+    stderr_master, stderr_slave = pty.openpty()
+
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=stdout_slave,
+            stderr=stderr_slave,
+            close_fds=True,
+            **kwargs
+        )
+        os.close(stdout_slave)
+        os.close(stderr_slave)
+
+        try:
+            process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            raise subprocess.TimeoutExpired(cmd, timeout, output=read_fd(stdout_master), stderr=read_fd(stderr_master))
+
+        stdout = read_fd(stdout_master)
+        stderr = read_fd(stderr_master)
+
+        return ProcessResult(process.returncode, stdout, stderr)
+
+    finally:
+        os.close(stdout_master)
+        os.close(stderr_master)
+
 def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=False):
     """
-    Wrapper around subprocess.run that logs the command and its stdout/stderr after execution.
+    Wrapper around execute_with_pty to execute process with pseudo tty.
     """
     caller_function = get_caller_function_name()
-    marker = f"[TEST SYSTEM][{caller_function}]"
+    prefix = f"[{caller_function}]"
 
-    print(f"{marker} Running command: {' '.join(args)}", file=sys.stdout)
+    print(f"{prefix} Running command: {' '.join(args)}", file=sys.stdout)
 
     env = os.environ.copy()
 
-    if cwd:
-        print(f"{marker} Working directory: {cwd}", file=sys.stdout)
+    exec_cwd = cwd
+    if not exec_cwd:
+        exec_cwd = os.getcwd()
+
+    print(f"{prefix} Working directory: {exec_cwd}", file=sys.stdout)
 
     if extra_env:
         env.update(extra_env)
-        env_str = ", ".join(f"{k}={extra_env[k]}" for k in sorted(extra_env))
-        print(f"{marker} Environment: {env_str}", file=sys.stdout)
+        env_str = " ".join(f"{k}={extra_env[k]}" for k in sorted(extra_env))
+        print(f"{prefix} Environment: {env_str}", file=sys.stdout)
 
     try:
-        res = subprocess.run(
+        res = execute_with_pty(
             args,
             cwd=cwd,
             env=env,
-            check=False,
-            capture_output=True,
-            text=True,
             timeout=timeout,
-            shell=shell
         )
-    except subprocess.TimeoutExpired:
-        print(f"{marker} Command timed out after {timeout} seconds: {' '.join(args)}")
+    except subprocess.TimeoutExpired as e:
+        print(f"{prefix} Command timed out after {timeout} seconds: {' '.join(args)}; Error: {e}")
         pytest.fail(f"Proxy not finished in {timeout} seconds.")
     except Exception as e:
-        print(f"{marker} Failed to run command: {' '.join(args)}; Error: {e}")
+        print(f"{prefix} Failed to run command: {' '.join(args)}; Error: {e}")
         pytest.fail(f"Can't start command {' '.join(args)}: {e}")
 
     if res.stdout:
-        print(f"{marker} STDOUT:\n{res.stdout}", file=sys.stdout)
+        print(f"{prefix} STDOUT:\n{res.stdout}", file=sys.stdout)
     if res.stderr:
-        print(f"{marker} STDERR:\n{res.stderr}", file=sys.stderr)
+        print(f"{prefix} STDERR:\n{res.stderr}", file=sys.stderr)
 
-
-    if check and res.returncode != 0:
-        print(f"{marker} Command failed with return code {res.returncode}: {' '.join(args)}")
+    if res.returncode != 0:
+        print(f"{prefix} Command failed with return code {res.returncode}: {' '.join(args)}")
 
     return res
 

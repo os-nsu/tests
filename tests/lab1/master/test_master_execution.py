@@ -47,9 +47,11 @@ def test_master_execution(proxy_bin_dir):
 						scope="session")
 @pytest.mark.lab1
 def test_master_logger_missing_init(proxy_dir, proxy_bin, proxy_logger_lib, lab_number, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["logger_bad_init"],
+	target = "logger_bad_init"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
 		 check=True)
 	logger_bad_init_so = os.path.join("bin", "logger_bad_init.so")
@@ -66,9 +68,11 @@ def test_master_logger_missing_init(proxy_dir, proxy_bin, proxy_logger_lib, lab_
 						scope="session")
 @pytest.mark.lab1
 def test_master_logger_missing_fini(proxy_dir, proxy_bin, proxy_logger_lib, lab_number, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["logger_bad_fini"],
+	target = "logger_bad_fini"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
 		 check=True)
 
@@ -87,9 +91,6 @@ def test_master_logger_missing_fini(proxy_dir, proxy_bin, proxy_logger_lib, lab_
 						scope="session")
 @pytest.mark.lab1
 def test_master_plugin_missing(proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-
 	file_backup.backup(proxy_plugins_greeting_bin)
 
 	result = run_command([proxy_bin], check=False)
@@ -102,9 +103,11 @@ def test_master_plugin_missing(proxy_bin, proxy_plugins_greeting_bin, file_backu
 						scope="session")
 @pytest.mark.lab1
 def test_master_plugin_missing_hook(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["greeting_bad_hook"],
+	target = "greeting_bad_hook"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir},
 		 check=True)
 
@@ -123,9 +126,11 @@ def test_master_plugin_missing_hook(proxy_dir, proxy_bin, proxy_plugins_greeting
 						scope="session")
 @pytest.mark.lab1
 def test_master_plugin_missing_init(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["greeting_bad_init"],
+	target = "greeting_bad_init"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir},
 		 check=True)
 
@@ -144,9 +149,11 @@ def test_master_plugin_missing_init(proxy_dir, proxy_bin, proxy_plugins_greeting
 						scope="session")
 @pytest.mark.lab1
 def test_master_plugin_missing_name(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["greeting_bad_name"],
+	target = "greeting_bad_name"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir},
 		 check=True)
 
@@ -165,9 +172,11 @@ def test_master_plugin_missing_name(proxy_dir, proxy_bin, proxy_plugins_greeting
 						scope="session")
 @pytest.mark.lab1
 def test_master_plugin_missing_fini(proxy_dir, proxy_bin, proxy_plugins_greeting_bin, file_backup, set_cwd_to_test_file_dir):
-
-	make_clean()
-	make(make_args=["greeting_bad_fini"],
+	target = "greeting_bad_fini"
+	clean_target = f"clean_{target}"
+	make(make_args=[clean_target],
+		check=True)
+	make(make_args=[target],
 		 extra_env={"PROXY_DIR": proxy_dir},
 		 check=True)
 
