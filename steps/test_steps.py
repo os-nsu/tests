@@ -82,7 +82,7 @@ def check_for_coredump_difference(proxy_bin_path, project_dir, start_coredumps, 
 		coredump_file = new_coredumps.pop()
 
 		gdb_command = ["gdb", "--batch", "-ex", "bt", proxy_bin_path, coredump_file]
-		gdb_result = run_command(gdb_command, cwd=project_dir, check=False)
+		gdb_result = run_command(cmd=gdb_command, cwd=project_dir)
 		if gdb_result.stdout:
 			segfault_details = f"Stacktrace from coredump ({coredump_file}):\n{gdb_result.stdout}"
 		else:

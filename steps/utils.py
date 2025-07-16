@@ -4,54 +4,137 @@ import inspect
 import os
 import subprocess
 import sys
-
+import pty
+import threading
 import pytest
+from time import time
+from dataclasses import dataclass
 
-def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=False):
-    """
-    Wrapper around subprocess.run that logs the command and its stdout/stderr after execution.
-    """
-    caller_function = get_caller_function_name()
-    marker = f"[TEST SYSTEM][{caller_function}]"
+@dataclass
+class CmdResult:
+    returncode: int
+    stdout: str
+    stderr: str
+    t_start: float
+    t_end:   float
 
-    print(f"{marker} Running command: {' '.join(args)}", file=sys.stdout)
+    @property
+    def duration(self) -> float:
+        return self.t_end - self.t_start
 
-    env = os.environ.copy()
 
-    if cwd:
-        print(f"{marker} Working directory: {cwd}", file=sys.stdout)
+def _reader(fd: int, bucket: list[bytes]):
+    while True:
+        try:
+            chunk = os.read(fd, 4096)
+            if not chunk:
+                break
+            bucket.append(chunk)
+        except OSError:
+            break
 
-    if extra_env:
-        env.update(extra_env)
-        env_str = ", ".join(f"{k}={extra_env[k]}" for k in sorted(extra_env))
-        print(f"{marker} Environment: {env_str}", file=sys.stdout)
+def execute_with_pty(cmd: list[str], timeout=None, **kwargs) -> CmdResult:
+
+    stdout, stdout_child = pty.openpty()
+    stderr, stderr_child = pty.openpty()
+
+    t_start = time()
+    proc = subprocess.Popen(
+        cmd,
+        stdout=stdout_child, stderr=stderr_child,
+        close_fds=True,
+        **kwargs
+    )
+    os.close(stdout_child); os.close(stderr_child)
+
+    out_chunks, err_chunks = [], []
+    t_out = threading.Thread(target=_reader, args=(stdout, out_chunks))
+    t_err = threading.Thread(target=_reader, args=(stderr, err_chunks))
+    t_out.start(); t_err.start()
 
     try:
-        res = subprocess.run(
-            args,
-            cwd=cwd,
-            env=env,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            shell=shell
-        )
+        proc.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
-        print(f"{marker} Command timed out after {timeout} seconds: {' '.join(args)}")
+        proc.kill(); proc.wait()
+        raise
+    finally:
+        t_out.join(); t_out.join()
+        os.close(stdout); os.close(stderr)
+
+    t_end = time()
+
+    res = CmdResult(
+            returncode=proc.returncode,
+            stdout=b"".join(out_chunks).decode(errors="replace"),
+            stderr=b"".join(err_chunks).decode(errors="replace"),
+            t_start=t_start,
+            t_end=t_end,
+    )
+    return res
+
+
+def execute_with_pipe(cmd: list[str], timeout, **kwargs) -> CmdResult:
+    t_start = time()
+    proc = subprocess.run(cmd, capture_output=True, text=True,
+                          timeout=timeout, check=False, **kwargs)
+    t_end = time()
+    res = CmdResult(
+            returncode=proc.returncode,
+            stdout=proc.stdout,
+            stderr=proc.stderr,
+            t_start=t_start,
+            t_end=t_end,
+    )
+    return res
+
+def run_command(
+        cmd: list[str],
+        cwd: str | None = None,
+        extra_env: dict[str, str] | None = None,
+        timeout: int | float | None = None,
+        use_pty: bool = True,
+    ):
+    """
+    Wrapper around execute_with_pty to execute process with pseudo tty.
+    """
+    caller_function = get_caller_function_name()
+    prefix = f"[{caller_function}]"
+
+    print(f"{prefix} Running command: {' '.join(cmd)}", file=sys.stdout)
+
+    env = os.environ.copy()
+    if extra_env:
+        env.update(extra_env)
+
+    try:
+        if(use_pty):
+            res = execute_with_pty(
+                cmd=cmd,
+                cwd=cwd,
+                env=env,
+                timeout=timeout,
+            )
+        else:
+            res = execute_with_pipe(
+                cmd=cmd,
+                cwd=cwd,
+                timeout=timeout,
+                env=env
+            )
+    except subprocess.TimeoutExpired as e:
+        print(f"{prefix} Command timed out after {timeout} seconds: {' '.join(cmd)}; Error: {e}")
         pytest.fail(f"Proxy not finished in {timeout} seconds.")
     except Exception as e:
-        print(f"{marker} Failed to run command: {' '.join(args)}; Error: {e}")
-        pytest.fail(f"Can't start command {' '.join(args)}: {e}")
+        print(f"{prefix} Failed to run command: {' '.join(cmd)}; Error: {e}")
+        pytest.fail(f"Can't start command {' '.join(cmd)}: {e}")
 
     if res.stdout:
-        print(f"{marker} STDOUT:\n{res.stdout}", file=sys.stdout)
+        print(f"{prefix} STDOUT:\n{res.stdout}", file=sys.stdout)
     if res.stderr:
-        print(f"{marker} STDERR:\n{res.stderr}", file=sys.stderr)
+        print(f"{prefix} STDERR:\n{res.stderr}", file=sys.stderr)
 
-
-    if check and res.returncode != 0:
-        print(f"{marker} Command failed with return code {res.returncode}: {' '.join(args)}")
+    if res.returncode != 0:
+        print(f"{prefix} Command failed with return code {res.returncode}: {' '.join(cmd)}")
 
     return res
 

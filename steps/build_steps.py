@@ -21,6 +21,6 @@ def make(build_dir = None, make_args=[], extra_env={}, check=True):
 
 	env.update(extra_env)
 
-	res = run_command(["make"] + make_args, cwd=build_dir, extra_env=env, check=check)
+	res = run_command(cmd=["make"] + make_args, cwd=build_dir, extra_env=env)
 
 	return res

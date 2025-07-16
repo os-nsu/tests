@@ -1,7 +1,4 @@
-import subprocess
 import os
-import pytest
-import subprocess
 from steps.build_steps import make_clean, make
 from steps.utils import run_command, start_command
 
@@ -111,7 +108,7 @@ class Proxy:
 		with open(self.config_path, "w") as f:
 			f.write(new_content)
 
-	def run_proxy(self, args=[], env=None, timeout=None, wait_until_end=True, check=True):
+	def run_proxy(self, args=[], env=None, timeout=None, wait_until_end=True):
 		"""
 		Runs the proxy with specified arguments.
 
@@ -120,7 +117,7 @@ class Proxy:
 		"""
 		cmd = [self.proxy_bin_name] + args
 		if wait_until_end:
-			result = run_command(cmd, cwd=self.project_dir, extra_env=env, timeout=timeout, check=check)
+			result = run_command(cmd, cwd=self.project_dir, extra_env=env, timeout=timeout)
 			return result
 		else:
 			proc = start_command(cmd, cwd=self.project_dir, env=env, text=True)

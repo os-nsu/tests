@@ -13,7 +13,9 @@ from steps.utils import run_command
 def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_config_create_config_table"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
@@ -21,7 +23,7 @@ def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
     bin_path = os.path.join("bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    test_result = run_command(args=[bin_path], check=False)
+    test_result = run_command(cmd=[bin_path])
     check_test_result(test_result=test_result, target=target)
 
 @pytest.mark.dependency(depends=["tests/lab1/config/test_config_build.py::test_config_symbols"],
@@ -30,7 +32,9 @@ def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 def test_config_destroy_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
     target = "test_config_destroy_config_table"
-    make_clean()
+    clean_target = f"clean_{target}"
+    make(make_args=[clean_target],
+        check=True)
     make(make_args=[target],
          extra_env={"PROXY_DIR": proxy_dir, "LAB_NUMBER": str(lab_number)},
          check=True)
@@ -38,5 +42,5 @@ def test_config_destroy_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
     bin_path = os.path.join("bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    test_result = run_command(args=[bin_path], check=False)
+    test_result = run_command(cmd=[bin_path])
     check_test_result(test_result=test_result, target=target)
