@@ -21,6 +21,13 @@ TEST_SRC_DIR  := c_tests
 # Where to place compiled test binaries
 BIN_DIR := bin
 
+STUBS_DIR ?= $(shell pwd)/../../stubs
+STUBS_GOOD_LOGGER := $(STUBS_DIR)/good/logger
+LOGGER_STUBS := \
+    $(STUBS_GOOD_LOGGER)/logger_good_init.c \
+    $(STUBS_GOOD_LOGGER)/logger_good_fini.c \
+    $(STUBS_GOOD_LOGGER)/logger_good_write_log.c
+
 ###############################################################################
 # test_config_create_config_table
 ###############################################################################
@@ -34,9 +41,9 @@ BIN_CREATE = $(BIN_DIR)/$(CREATE_TARGET)
 $(CREATE_TARGET): $(BIN_CREATE)
 	@echo "[OK] Built $@ => $<"
 
-$(BIN_CREATE): $(TEST_CREATE) | $(BIN_DIR)
+$(BIN_CREATE): $(TEST_CREATE) $(LOGGER_STUBS) | $(BIN_DIR)
 	@echo "Building $@ from $(TEST_CREATE)"
-	$(CC) $(CFLAGS) $(PROXY_INC) $(UNITY_INC) -o $@ $(TEST_CREATE) $(UNITY_SRC) $(LDFLAGS_CONFIG)
+	$(CC) $(CFLAGS) $(PROXY_INC) $(UNITY_INC) -o $@ $^ $(UNITY_SRC) $(LDFLAGS_CONFIG)
 
 clean_$(CREATE_TARGET):
 	rm -rf $(BIN_CREATE)
@@ -54,9 +61,9 @@ BIN_DESTROY = $(BIN_DIR)/$(DESTROY_TARGET)
 $(DESTROY_TARGET): $(BIN_DESTROY)
 	@echo "[OK] Built $@ => $<"
 
-$(BIN_DESTROY): $(TEST_DESTROY) | $(BIN_DIR)
+$(BIN_DESTROY): $(TEST_DESTROY) $(LOGGER_STUBS) | $(BIN_DIR)
 	@echo "Building $@ from $(TEST_DESTROY)"
-	$(CC) $(CFLAGS) $(PROXY_INC) $(UNITY_INC) -o $@ $(TEST_DESTROY) $(UNITY_SRC) $(LDFLAGS_CONFIG)
+	$(CC) $(CFLAGS) $(PROXY_INC) $(UNITY_INC) -o $@ $^ $(UNITY_SRC) $(LDFLAGS_CONFIG)
 
 clean_$(DESTROY_TARGET):
 	rm -rf $(BIN_DESTROY)
