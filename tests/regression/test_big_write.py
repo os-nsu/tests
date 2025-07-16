@@ -13,6 +13,6 @@ def test_big_continuous_write(set_cwd_to_test_file_dir):
 
     exe = os.path.join(HERE, "bin", "big_write")
 
-    res = run_command([exe], timeout=3, check=False)
+    res = run_command(cmd=[exe], timeout=3)
     assert len(res.stdout) > 200000, "TTY-deadlock: can't read stdout"
     assert res.returncode == 0

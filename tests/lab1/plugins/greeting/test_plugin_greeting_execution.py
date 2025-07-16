@@ -22,7 +22,7 @@ def test_plugin_greeting_dlopen(request, proxy_dir, proxy_bin_plugins_dir, set_c
     bin_path = os.path.join(current_file_dir, "bin", "test_plugin_greeting_dlopen")
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], extra_env={"LD_LIBRARY_PATH": proxy_bin_plugins_dir}, check=False)
+    result = run_command(cmd=[bin_path], extra_env={"LD_LIBRARY_PATH": proxy_bin_plugins_dir})
     check_test_result(result, bin_path)
 
 
@@ -39,7 +39,7 @@ def test_plugin_greeting_dlsym_init(request, proxy_dir, set_cwd_to_test_file_dir
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -56,7 +56,7 @@ def test_plugin_greeting_dlsym_name(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -73,7 +73,7 @@ def test_plugin_greeting_dlsym_fini(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -90,7 +90,7 @@ def test_plugin_greeting_call_init(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -107,7 +107,7 @@ def test_plugin_greeting_call_name(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -124,7 +124,7 @@ def test_plugin_greeting_call_fini(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)
 
 
@@ -141,5 +141,5 @@ def test_plugin_greeting_dlclose(proxy_dir, set_cwd_to_test_file_dir):
     bin_path = os.path.join(current_file_dir, "bin", target)
     assert os.path.exists(bin_path), f"Binary not found: {bin_path}"
 
-    result = run_command([bin_path], check=False)
+    result = run_command(cmd=[bin_path])
     check_test_result(result, bin_path)

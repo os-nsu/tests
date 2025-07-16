@@ -5,100 +5,128 @@ import os
 import subprocess
 import sys
 import pty
-import select
-import os
-import pty
-import subprocess
-import select
 import threading
-
 import pytest
+from time import time
+from dataclasses import dataclass
 
-class ProcessResult:
-    def __init__(self, returncode, stdout, stderr):
-        self.returncode = returncode
-        self.stdout = stdout
-        self.stderr = stderr
+@dataclass
+class CmdResult:
+    returncode: int
+    stdout: str
+    stderr: str
+    t_start: float
+    t_end:   float
 
-def read_fd(fd):
-    output = []
+    @property
+    def duration(self) -> float:
+        return self.t_end - self.t_start
+
+
+def _reader(fd: int, bucket: list[bytes]):
     while True:
         try:
-            r, _, _ = select.select([fd], [], [], 0.1)
-            if fd in r:
-                data = os.read(fd, 1024).decode()
-                if not data:
-                    break
-                output.append(data)
+            chunk = os.read(fd, 4096)
+            if not chunk:
+                break
+            bucket.append(chunk)
         except OSError:
             break
-    return ''.join(output)
 
-def execute_with_pty(cmd, timeout=None, **kwargs):
-    stdout_master, stdout_slave = pty.openpty()
-    stderr_master, stderr_slave = pty.openpty()
+def execute_with_pty(cmd: list[str], timeout=None, **kwargs) -> CmdResult:
+
+    stdout, stdout_child = pty.openpty()
+    stderr, stderr_child = pty.openpty()
+
+    t_start = time()
+    proc = subprocess.Popen(
+        cmd,
+        stdout=stdout_child, stderr=stderr_child,
+        close_fds=True,
+        **kwargs
+    )
+    os.close(stdout_child); os.close(stderr_child)
+
+    out_chunks, err_chunks = [], []
+    t_out = threading.Thread(target=_reader, args=(stdout, out_chunks))
+    t_err = threading.Thread(target=_reader, args=(stderr, err_chunks))
+    t_out.start(); t_err.start()
 
     try:
-        process = subprocess.Popen(
-            cmd,
-            stdout=stdout_slave,
-            stderr=stderr_slave,
-            close_fds=True,
-            **kwargs
-        )
-        os.close(stdout_slave)
-        os.close(stderr_slave)
-
-        try:
-            process.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            raise subprocess.TimeoutExpired(cmd, timeout, output=read_fd(stdout_master), stderr=read_fd(stderr_master))
-
-        stdout = read_fd(stdout_master)
-        stderr = read_fd(stderr_master)
-
-        return ProcessResult(process.returncode, stdout, stderr)
-
+        proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        proc.kill(); proc.wait()
+        raise
     finally:
-        os.close(stdout_master)
-        os.close(stderr_master)
+        t_out.join(); t_out.join()
+        os.close(stdout); os.close(stderr)
 
-def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=False):
+    t_end = time()
+
+    res = CmdResult(
+            returncode=proc.returncode,
+            stdout=b"".join(out_chunks).decode(errors="replace"),
+            stderr=b"".join(err_chunks).decode(errors="replace"),
+            t_start=t_start,
+            t_end=t_end,
+    )
+    return res
+
+
+def execute_with_pipe(cmd: list[str], timeout, **kwargs) -> CmdResult:
+    t_start = time()
+    proc = subprocess.run(cmd, capture_output=True, text=True,
+                          timeout=timeout, check=False, **kwargs)
+    t_end = time()
+    res = CmdResult(
+            returncode=proc.returncode,
+            stdout=proc.stdout,
+            stderr=proc.stderr,
+            t_start=t_start,
+            t_end=t_end,
+    )
+    return res
+
+def run_command(
+        cmd: list[str],
+        cwd: str | None = None,
+        extra_env: dict[str, str] | None = None,
+        timeout: int | float | None = None,
+        use_pty: bool = True,
+    ):
     """
     Wrapper around execute_with_pty to execute process with pseudo tty.
     """
     caller_function = get_caller_function_name()
     prefix = f"[{caller_function}]"
 
-    print(f"{prefix} Running command: {' '.join(args)}", file=sys.stdout)
+    print(f"{prefix} Running command: {' '.join(cmd)}", file=sys.stdout)
 
     env = os.environ.copy()
-
-    exec_cwd = cwd
-    if not exec_cwd:
-        exec_cwd = os.getcwd()
-
-    print(f"{prefix} Working directory: {exec_cwd}", file=sys.stdout)
-
     if extra_env:
         env.update(extra_env)
-        env_str = " ".join(f"{k}={extra_env[k]}" for k in sorted(extra_env))
-        print(f"{prefix} Environment: {env_str}", file=sys.stdout)
 
     try:
-        res = execute_with_pty(
-            args,
-            cwd=cwd,
-            env=env,
-            timeout=timeout,
-        )
+        if(use_pty):
+            res = execute_with_pty(
+                cmd=cmd,
+                cwd=cwd,
+                env=env,
+                timeout=timeout,
+            )
+        else:
+            res = execute_with_pipe(
+                cmd=cmd,
+                cwd=cwd,
+                timeout=timeout,
+                env=env
+            )
     except subprocess.TimeoutExpired as e:
-        print(f"{prefix} Command timed out after {timeout} seconds: {' '.join(args)}; Error: {e}")
+        print(f"{prefix} Command timed out after {timeout} seconds: {' '.join(cmd)}; Error: {e}")
         pytest.fail(f"Proxy not finished in {timeout} seconds.")
     except Exception as e:
-        print(f"{prefix} Failed to run command: {' '.join(args)}; Error: {e}")
-        pytest.fail(f"Can't start command {' '.join(args)}: {e}")
+        print(f"{prefix} Failed to run command: {' '.join(cmd)}; Error: {e}")
+        pytest.fail(f"Can't start command {' '.join(cmd)}: {e}")
 
     if res.stdout:
         print(f"{prefix} STDOUT:\n{res.stdout}", file=sys.stdout)
@@ -106,7 +134,7 @@ def run_command(args, cwd=None, extra_env=None, timeout=None, check=True, shell=
         print(f"{prefix} STDERR:\n{res.stderr}", file=sys.stderr)
 
     if res.returncode != 0:
-        print(f"{prefix} Command failed with return code {res.returncode}: {' '.join(args)}")
+        print(f"{prefix} Command failed with return code {res.returncode}: {' '.join(cmd)}")
 
     return res
 

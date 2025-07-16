@@ -12,7 +12,7 @@ def test_segfault_message(set_cwd_to_test_file_dir):
 
     bin_path = os.path.join("bin", "segfault_message")
 
-    res = run_command([bin_path], timeout=3, check=False)
+    res = run_command(cmd=[bin_path], timeout=3)
 
     assert "SEGFAULT-LINE" in res.stdout, "lose stdout because buffering"
     assert res.returncode != 0

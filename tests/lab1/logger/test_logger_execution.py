@@ -25,7 +25,7 @@ def test_logger_init_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
     binary_path = os.path.join("bin", target)
     assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
 
-    test_result = run_command([binary_path], check=False)
+    test_result = run_command(cmd=[binary_path])
     check_test_result(test_result, binary_path)
 
 @pytest.mark.lab1
@@ -45,7 +45,7 @@ def test_logger_fini_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
     binary_path = os.path.join("bin", target)
     assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
 
-    test_result = run_command([binary_path], check=False)
+    test_result = run_command(cmd=[binary_path])
     check_test_result(test_result, binary_path)
 
 @pytest.mark.lab1
@@ -66,5 +66,5 @@ def test_logger_init_logger_args(proxy_dir, lab_number, set_cwd_to_test_file_dir
     binary_path = os.path.join("bin", target)
     assert os.path.exists(binary_path), f"Binary not found: {binary_path}"
 
-    test_result = run_command([binary_path], check=False)
+    test_result = run_command(cmd=[binary_path])
     check_test_result(test_result, binary_path)

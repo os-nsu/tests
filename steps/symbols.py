@@ -3,7 +3,7 @@
 from steps.utils import run_command
 
 def check_symbols(binary_path, required_symbols, cwd=None):
-    res = run_command(["nm", "--defined-only", binary_path], cwd=cwd, check=True)
+    res = run_command(cmd=["nm", "--defined-only", binary_path], cwd=cwd)
     lines = res.stdout.splitlines()
     missing = []
 

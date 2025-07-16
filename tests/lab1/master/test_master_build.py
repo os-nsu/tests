@@ -21,7 +21,7 @@ def test_master_config_symbols(proxy_bin_dir):
 						scope="session")
 def test_master_logger_symbols(proxy_bin_dir):
 	proxy_bin = os.path.join(proxy_bin_dir, "proxy")
-	res = run_command(["ldd", proxy_bin], check=True)
+	res = run_command(["ldd", proxy_bin])
 	dependencies = res.stdout
 	if "liblogger.so" not in dependencies:
 		pytest.fail(
