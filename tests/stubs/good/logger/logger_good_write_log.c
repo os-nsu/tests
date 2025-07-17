@@ -2,8 +2,8 @@
 
 #include "logger.h"
 
-int write_log(enum OutputStream stream, enum LogLevel level,
-              const char *filename, int line_number, const char *format, ...)
+int write_log(OutputStream stream, LogLevel level,
+              char *filename, int line_number, char *format, ...)
 {
     return 0;
 }

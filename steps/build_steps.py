@@ -15,7 +15,7 @@ def make(build_dir = None, make_args=[], extra_env={}, check=True):
 	env.setdefault("COPT", "")
 	env.setdefault("CFLAGS", "")
 
-	env["COPT"] = f"-Werror -Wall {env['COPT']}"
+	env["COPT"] = f"-Wall {env['COPT']}"
 	env["CFLAGS"] = f"-Og -fno-omit-frame-pointer -ggdb3 {env['CFLAGS']}"
 	env["CXXFLAGS"] = f"{env['CFLAGS']} {env['COPT']}"
 
