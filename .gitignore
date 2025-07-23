@@ -5,4 +5,4 @@
 **/bin
 **/venv
 *.log
-
+**/logs
