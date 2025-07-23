@@ -9,8 +9,7 @@ from steps.message_templates import format_library_exec_error, format_library_op
 from steps.utils import run_command
 
 @pytest.mark.lab1
-@pytest.mark.dependency(depends=["tests/lab1/master/test_master_build.py::test_master_config_symbols",
-								 "tests/lab1/master/test_master_build.py::test_master_logger_symbols",
+@pytest.mark.dependency(depends=["tests/lab1/master/test_master_interface.py::test_master_interface",
 								 "tests/lab1/config/test_config_execution.py::test_config_create_table",
 								 "tests/lab1/config/test_config_execution.py::test_config_destroy_table",
 								 "tests/lab1/logger/test_logger_execution.py::test_logger_init_logger",

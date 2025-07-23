@@ -4,8 +4,9 @@ CC        ?= gcc
 CFLAGS    ?= -Og -fno-omit-frame-pointer -ggdb3 -Werror -Wall
 
 # Proxy
-PROXY_DIR ?= $(shell pwd)
-PROXY_INC := -I${PROXY_DIR}/src/include
+PROXY_DIR     ?= $(shell pwd)
+PROXY_INC_DIR := $(PROXY_DIR)/src/include
+PROXY_INC     := -I${PROXY_DIR}/src/include
 
 # Unity
 UNITY_DIR  := ../../common/unity
@@ -37,6 +38,19 @@ STUBS_BAD_LOGGER  := $(STUBS_DIR)/bad/logger
 
 STUBS_GOOD_TIME := $(STUBS_DIR)/good/time
 STUBS_BAD_TIME  := $(STUBS_DIR)/bad/time
+
+###############################################################################
+# test_logger_interface
+###############################################################################
+
+INTERFACE_TARGET = test_logger_interface
+INTERFACE_FILE = $(PROXY_INC_DIR)/logger.h
+
+TEST_INTERFACE = $(TEST_SRC_DIR)/$(INTERFACE_TARGET).c
+
+$(INTERFACE_TARGET): $(TEST_INTERFACE)
+	@echo "Checking interface for $(INTERFACE_FILE)"
+	$(CC) $(PROXY_INC) $^ -c -o /dev/null
 
 ###############################################################################
 # 1) Unity-test targets
@@ -119,6 +133,7 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 .PHONY: all \
+		$(INTERFACE_TARGET) \
 		$(INIT_TARGET) \
 		$(FINI_TARGET) \
 		$(ARGS_TARGET) \

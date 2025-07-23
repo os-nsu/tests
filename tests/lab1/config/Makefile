@@ -4,8 +4,9 @@ CC        ?= gcc
 CFLAGS    ?= -Og -fno-omit-frame-pointer -ggdb3 -Werror -Wall
 
 # Proxy
-PROXY_DIR ?= $(shell pwd)
-PROXY_INC := -I$(PROXY_DIR)/src/include
+PROXY_DIR     ?= $(shell pwd)
+PROXY_INC_DIR := $(PROXY_DIR)/src/include
+PROXY_INC     := -I$(PROXY_INC_DIR)
 
 # Unity
 UNITY_DIR  := ../../common/unity
@@ -27,6 +28,19 @@ LOGGER_STUBS := \
     $(STUBS_GOOD_LOGGER)/logger_good_init.c \
     $(STUBS_GOOD_LOGGER)/logger_good_fini.c \
     $(STUBS_GOOD_LOGGER)/logger_good_write_log.c
+
+###############################################################################
+# test_config_interface
+###############################################################################
+
+INTERFACE_TARGET = test_config_interface
+INTERFACE_FILE = $(PROXY_INC_DIR)/config.h
+
+TEST_INTERFACE = $(TEST_SRC_DIR)/$(INTERFACE_TARGET).c
+
+$(INTERFACE_TARGET): $(TEST_INTERFACE)
+	@echo "Checking interface for $(INTERFACE_FILE)"
+	$(CC) $(PROXY_INC) $^ -c -o /dev/null
 
 ###############################################################################
 # test_config_create_config_table
@@ -76,10 +90,11 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 .PHONY: all \
+		$(INTERFACE_TARGET) \
 		$(CREATE_TARGET) \
 		$(DESTROY_TARGET) \
 		clean_$(CREATE_TARGET) \
-		clean_$(DESTROY_TARGET)
+		clean_$(DESTROY_TARGET) \
 
 all: $(CREATE_TARGET) \
 	 $(DESTROY_TARGET)

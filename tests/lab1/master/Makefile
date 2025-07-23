@@ -10,6 +10,8 @@ BIN_DIR   ?= bin
 
 LAB_NUMBER ?= 1
 
+TEST_SRC_DIR  := c_tests
+
 STUBS_DIR ?= $(shell pwd)/../../stubs
 
 STUBS_GOOD_LOGGER := $(STUBS_DIR)/good/logger
@@ -17,6 +19,20 @@ STUBS_BAD_LOGGER  := $(STUBS_DIR)/bad/logger
 
 STUBS_GOOD_PLUGIN_GREETING := $(STUBS_DIR)/good/plugins/greeting
 STUBS_BAD_PLUGIN_GREETING := $(STUBS_DIR)/bad/plugins/greeting
+
+###############################################################################
+# test_logger_interface
+###############################################################################
+
+INTERFACE_TARGET = test_master_interface
+INTERFACE_FILE = $(PROXY_INC_DIR)/master.h
+
+TEST_INTERFACE = $(TEST_SRC_DIR)/$(INTERFACE_TARGET).c
+
+$(INTERFACE_TARGET): $(TEST_INTERFACE)
+	@echo "Checking interface for $(INTERFACE_FILE)"
+	$(CC) $(PROXY_INC) $^ -c -o /dev/null
+
 
 ###############################################################################
 # logger_bad_init.so
@@ -160,6 +176,7 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 .PHONY: all \
+		$(INTERFACE_TARGET) \
 		$(LOGGER_BAD_INIT_TARGET) \
 		$(LOGGER_BAD_FINI_TARGET) \
 		$(GREETING_BAD_INIT_TARGET) \
