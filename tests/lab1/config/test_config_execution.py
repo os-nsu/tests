@@ -7,7 +7,7 @@ from steps.build_steps import make, make_clean
 from steps.execution_steps import check_test_result
 from steps.utils import run_command
 
-@pytest.mark.dependency(depends=["tests/lab1/config/test_config_build.py::test_config_symbols"],
+@pytest.mark.dependency(depends=["tests/lab1/config/test_config_interface.py::test_config_interface"],
  						scope="session")
 @pytest.mark.lab1
 def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
@@ -26,7 +26,7 @@ def test_config_create_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):
     test_result = run_command(cmd=[bin_path])
     check_test_result(test_result=test_result, target=target)
 
-@pytest.mark.dependency(depends=["tests/lab1/config/test_config_build.py::test_config_symbols"],
+@pytest.mark.dependency(depends=["tests/lab1/config/test_config_interface.py::test_config_interface"],
  						scope="session")
 @pytest.mark.lab1
 def test_config_destroy_table(proxy_dir, lab_number, set_cwd_to_test_file_dir):

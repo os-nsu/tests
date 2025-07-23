@@ -10,7 +10,7 @@ from steps.utils import run_command
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=[
-    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+    f"tests/lab1/logger/test_logger_interface.py::test_logger_interface"],
                         scope='session')
 def test_logger_init_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
@@ -30,7 +30,7 @@ def test_logger_init_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=[
-    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+    f"tests/lab1/logger/test_logger_interface.py::test_logger_interface"],
                         scope='session')
 def test_logger_fini_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
@@ -50,7 +50,7 @@ def test_logger_fini_logger(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
 @pytest.mark.lab1
 @pytest.mark.dependency(depends=[
-    f"tests/lab1/logger/test_logger_file_structure.py::test_logger_files_exist[liblogger.so]"],
+    f"tests/lab1/logger/test_logger_interface.py::test_logger_interface"],
                         scope='session')
 def test_logger_init_logger_args(proxy_dir, lab_number, set_cwd_to_test_file_dir):
 
