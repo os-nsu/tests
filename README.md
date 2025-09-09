@@ -34,5 +34,3 @@ pip install -r requirements.txt
 ```bash
 ./run_tests.py --src ../proxy_grisha --full-logs
 ```
-
-# Нужно поправить тест: fix_test_logger_init_logger_args
