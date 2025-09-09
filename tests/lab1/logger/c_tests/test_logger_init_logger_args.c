@@ -53,9 +53,9 @@ void test_init_logger_null_path_infinite_limit(void) {
  */
 void test_init_logger_empty_path(void) {
     TEST_ASSERT_EQUAL_INT_MESSAGE(
-        0,
+        1,
         init_logger("", 100),
-        "The first call to init_logger(\"\", 100) should return 0!"
+        "The first call to init_logger(\"\", 100) should return 1!"
     );
     TEST_ASSERT_EQUAL_INT_MESSAGE(
         1,
@@ -101,7 +101,7 @@ void test_init_logger_valid_path_big_limit(void) {
  */
 void test_init_logger_weird_negative_limit(void) {
     TEST_ASSERT_EQUAL_INT_MESSAGE(
-        0,
+        1,
         init_logger("somefile.log", -999),
         "The first call to init_logger(\"somefile.log\", -999) should return 1!"
     );
